@@ -168,7 +168,7 @@ public class TinkerersSmithingLoader {
 							if (recipe.getOutput().isOf(item)) {
 								for (Ingredient repairIngredient : repairIngredients) {
 									int unitCost = Math.toIntExact(recipe.getIngredients().stream()
-										.filter(ingredient -> repairIngredient.toJson().toString().equals(ingredient.toJson().toString()))
+										.filter(craftingIngredient -> TinkerersSmithing.CONFIG.matchesOrEquivalent(repairIngredient, craftingIngredient))
 										.count());
 									if (unitCost > 0) {
 										outMap.put(repairIngredient, unitCost);
@@ -268,7 +268,7 @@ public class TinkerersSmithingLoader {
 			RECIPES.clear();
 			Map<Item, Map<Ingredient, Integer>> unitCosts = new HashMap<>();
 			for (Item item : Registry.ITEM) {
-                Map<Ingredient, Integer> unitCost = getUnitCosts(item, recipes);
+				Map<Ingredient, Integer> unitCost = getUnitCosts(item, recipes);
 				unitCost.forEach((unit, count) -> RECIPES.add(new ShapelessRepairRecipe(item, unit, count)));
 				unitCosts.put(item, unitCost);
 			}
@@ -280,8 +280,8 @@ public class TinkerersSmithingLoader {
 					});
 				}
 				getSacrificePaths(base, unitCosts).forEach((result, sacrifice) -> sacrifice.getRight().keySet().forEach(additionUnits -> {
-				    Collection<Item> additions = sacrifice.getRight().get(additionUnits);
-				    RECIPES.add(new SacrificeUpgradeRecipe(base, Ingredient.ofItems(additions.toArray(Item[]::new)), additionUnits, result, sacrifice.getLeft()));
+					Collection<Item> additions = sacrifice.getRight().get(additionUnits);
+					RECIPES.add(new SacrificeUpgradeRecipe(base, Ingredient.ofItems(additions.toArray(Item[]::new)), additionUnits, result, sacrifice.getLeft()));
 				}));
 			}
 			LOGGER.info("[Tinkerer's Smithing] Registered {} Tool Materials with {} items: [{}]", TOOL_MATERIALS.size(), TOOL_MATERIALS.values().stream().map(m -> m.items.size()).reduce(Integer::sum).orElse(0), TOOL_MATERIALS.entrySet().stream().map(e -> e.getKey().toString() + "(" + e.getValue().items.size() + ")").collect(Collectors.joining(", ")));
