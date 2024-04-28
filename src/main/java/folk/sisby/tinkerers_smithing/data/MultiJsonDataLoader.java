@@ -43,13 +43,18 @@ public abstract class MultiJsonDataLoader extends SinglePreparationResourceReloa
 			// Remove .json, ignore path prefixes: minecraft:campanion/diamond = minecraft:diamond
 			Identifier id = new Identifier(fileId.getNamespace(), StringUtils.removeEndIgnoreCase(fileId.getPath().substring(fileId.getPath().lastIndexOf('/') + 1), FILE_SUFFIX));
 			try {
-				Resource resource = manager.getResource(fileId);
-				InputStream inputStream = resource.getInputStream();
-				Reader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-				JsonElement jsonContents = JsonHelper.deserialize(this.gson, reader, JsonElement.class);
-				outMap.computeIfAbsent(id, k -> new ArrayList<>()).add(new Pair<>(jsonContents, resource.getResourcePackName()));
-			} catch (IllegalArgumentException | IOException | JsonParseException e) {
-				LOGGER.error("Couldn't parse data file {} from {}", id, fileId, e);
+				for (Resource resource : manager.getAllResources(fileId)) {
+					try {
+						InputStream inputStream = resource.getInputStream();
+						Reader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+						JsonElement jsonContents = JsonHelper.deserialize(this.gson, reader, JsonElement.class);
+						outMap.computeIfAbsent(id, k -> new ArrayList<>()).add(new Pair<>(jsonContents, resource.getResourcePackName()));
+					} catch (IllegalArgumentException | JsonParseException e) {
+						LOGGER.error("Couldn't parse data file {} from {}", id, fileId, e);
+					}
+				}
+			} catch (IOException e) {
+				LOGGER.error("Couldn't get data file {} from {}", id, fileId, e);
 			}
 		}
 
