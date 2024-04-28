@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class InGameHudMixin {
 	@Shadow private ItemStack currentStack;
 
-	@ModifyExpressionValue(method = "renderHeldItemTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/Text;empty()Lnet/minecraft/text/MutableText;"))
+	@ModifyExpressionValue(method = "renderHeldItemTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/Text;empty()Lnet/minecraft/text/MutableText;", ordinal = 0))
 	private MutableText showBrokenHeldItemTooltip(MutableText text) {
 		if (TinkerersSmithing.isBroken(currentStack)) {
 			return Text.empty().append(Text.translatable("item.tinkerers_smithing.broken").setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withItalic(false))).append(Text.literal(" ")).append(text);
