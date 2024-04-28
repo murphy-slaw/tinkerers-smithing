@@ -1,5 +1,6 @@
 package folk.sisby.tinkerers_smithing.mixin.client;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import folk.sisby.tinkerers_smithing.TinkerersSmithing;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.item.ItemStack;
@@ -10,16 +11,15 @@ import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(InGameHud.class)
 public class InGameHudMixin {
 	@Shadow private ItemStack currentStack;
 
-	@ModifyVariable(method = "renderHeldItemTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;getWidth(Lnet/minecraft/text/StringVisitable;)I", shift = At.Shift.BEFORE), ordinal = 0)
+	@ModifyExpressionValue(method = "renderHeldItemTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/Text;empty()Lnet/minecraft/text/MutableText;"))
 	private MutableText showBrokenHeldItemTooltip(MutableText text) {
 		if (TinkerersSmithing.isBroken(currentStack)) {
-			return Text.translatable("item.tinkerers_smithing.broken").setStyle(Style.EMPTY.withColor(Formatting.DARK_RED)).append(Text.literal(" ")).append(text);
+			return Text.empty().append(Text.translatable("item.tinkerers_smithing.broken").setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withItalic(false))).append(Text.literal(" ")).append(text);
 		}
 		return text;
 	}
