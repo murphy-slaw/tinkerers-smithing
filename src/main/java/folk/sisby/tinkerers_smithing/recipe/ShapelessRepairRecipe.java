@@ -59,7 +59,8 @@ public class ShapelessRepairRecipe extends ShapelessRecipe implements ServerReci
 	public boolean matches(CraftingInventory inventory, World world) {
 		ItemStack base = findBase(inventory);
 		long units = inventory.stacks.stream().filter(addition).count();
-        if (base == null || units <= 0 || units > additionCount) return false;
+		long empty = inventory.stacks.stream().filter(ItemStack::isEmpty).count();
+        if (base == null || units <= 0 || units > additionCount || empty != (inventory.size() - units - 1)) return false;
 
         return base.getDamage() - ((int) Math.ceil((base.getMaxDamage() * (units - 1)) / (double) additionCount)) > 0;
     }
