@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public abstract class MultiJsonDataLoader extends SinglePreparationResourceReloader<Map<Identifier, Collection<Pair<JsonElement, String>>>> {
@@ -39,18 +40,19 @@ public abstract class MultiJsonDataLoader extends SinglePreparationResourceReloa
 	protected Map<Identifier, Collection<Pair<JsonElement, String>>> prepare(ResourceManager manager, Profiler profiler) {
 		Map<Identifier, Collection<Pair<JsonElement, String>>> outMap = Maps.newHashMap();
 
-		for(Map.Entry<Identifier, Resource> entry : manager.findResources(this.dataType, id -> id.getPath().endsWith(".json")).entrySet()) {
+		for(Map.Entry<Identifier, List<Resource>> entry : manager.findAllResources(this.dataType, id -> id.getPath().endsWith(".json")).entrySet()) {
 			Identifier fileId = entry.getKey();
-			// Remove .json, ignore path prefixes: minecraft:campanion/diamond = minecraft:diamond
-			Identifier id = new Identifier(fileId.getNamespace(), StringUtils.removeEndIgnoreCase(fileId.getPath().substring(fileId.getPath().lastIndexOf('/') + 1), FILE_SUFFIX));
+			Identifier id = new Identifier(fileId.getNamespace(), fileId.getPath().substring(dataType.length() + 1, fileId.getPath().length() - FILE_SUFFIX.length()));
 
-			try {
-				try (Reader reader = entry.getValue().getReader()) {
-					JsonElement jsonContents = JsonHelper.deserialize(this.gson, reader, JsonElement.class);
-					outMap.computeIfAbsent(id, k -> new ArrayList<>()).add(new Pair<>(jsonContents, entry.getValue().getResourcePackName()));
+			for (Resource resource : entry.getValue()) {
+				try {
+					try (Reader reader = resource.getReader()) {
+						JsonElement jsonContents = JsonHelper.deserialize(this.gson, reader, JsonElement.class);
+						outMap.computeIfAbsent(id, k -> new ArrayList<>()).add(new Pair<>(jsonContents, resource.getResourcePackName()));
+					}
+				} catch (IllegalArgumentException | IOException | JsonParseException e) {
+					LOGGER.error("Couldn't parse data file {} from {}", id, fileId, e);
 				}
-			} catch (IllegalArgumentException | IOException | JsonParseException e) {
-				LOGGER.error("Couldn't parse data file {} from {}", id, fileId, e);
 			}
 		}
 

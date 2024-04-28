@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,7 +78,7 @@ public class TinkerersSmithingLoader {
 			for (TinkerersSmithingMaterial material : getAllMaterials()) {
 				if (material.items.contains(item)) {
 					noneMatch = false;
-					outList.addAll(material.repairMaterials.stream().filter(i -> !i.isEmpty()).toList());
+					material.repairMaterials.stream().filter(i -> !i.isEmpty()).forEach(outList::add);
 				}
 			}
 
@@ -121,21 +122,21 @@ public class TinkerersSmithingLoader {
 			});
 
 			if (!types.isEmpty()) {
-				getAllMaterials().forEach(material -> {
+				for (TinkerersSmithingMaterial material : getAllMaterials()) {
 					if (material.items.contains(item)) {
 						Map<Identifier, TinkerersSmithingMaterial> map = material.type == TinkerersSmithingMaterial.EQUIPMENT_TYPE.ARMOR ? ARMOR_MATERIALS : TOOL_MATERIALS;
-						material.upgradesTo.forEach(id -> {
+						for (Identifier id : material.upgradesTo) {
 							TinkerersSmithingMaterial upgradeMaterial = map.get(id);
 							if (upgradeMaterial.sacrificesVia == null) {
-								upgradeMaterial.items.forEach(upgradeItem -> {
+								for (Item upgradeItem : upgradeMaterial.items) {
 									if (types.stream().anyMatch(type -> type.contains(upgradeItem))) {
 										outSet.add(upgradeItem);
 									}
-								});
+								}
 							}
-						});
+						}
 					}
-				});
+				}
 			}
 
 			if (!outSet.isEmpty()) {
@@ -161,24 +162,24 @@ public class TinkerersSmithingLoader {
 			if ((override == null || !override.replace()) && !repairIngredients.isEmpty()) {
 
 				// Naively calculate unit cost by testing the recipe with the same ID as the item itself (ignoring path directories)
-				List<Identifier> recipeIds = recipes.keySet().stream().filter(id -> id.getNamespace().equals(itemId.getNamespace()) && itemId.getPath().equals(id.getPath().substring(id.getPath().lastIndexOf('/') + 1))).toList();
-				if (!recipeIds.isEmpty()) {
-					for (Identifier recipeId : recipeIds) {
-						Recipe<?> recipe = recipes.get(recipeId);
-						if (recipe != null) {
-							if (recipe.getOutput(DynamicRegistryManager.of(Registries.REGISTRIES)).isOf(item)) {
-								for (Ingredient repairIngredient : repairIngredients) {
-									int unitCost = Math.toIntExact(recipe.getIngredients().stream()
-										.filter(craftingIngredient -> TinkerersSmithing.CONFIG.matchesOrEquivalent(repairIngredient, craftingIngredient))
-										.count());
-									if (unitCost > 0) {
-										outMap.put(repairIngredient, unitCost);
-									}
+				List<Identifier> recipeIds = new ArrayList<>();
+				recipes.keySet().stream().filter(id -> id.getNamespace().equals(itemId.getNamespace()) && itemId.getPath().equals(id.getPath().substring(id.getPath().lastIndexOf('/') + 1))).forEach(recipeIds::add);
+				for (Identifier recipeId : recipeIds) {
+					Recipe<?> recipe = recipes.get(recipeId);
+					if (recipe != null) {
+						if (recipe.getOutput(DynamicRegistryManager.of(Registries.REGISTRIES)).isOf(item)) {
+							for (Ingredient repairIngredient : repairIngredients) {
+								int unitCost = Math.toIntExact(recipe.getIngredients().stream()
+									.filter(craftingIngredient -> TinkerersSmithing.CONFIG.matchesOrEquivalent(repairIngredient, craftingIngredient))
+									.count());
+								if (unitCost > 0) {
+									outMap.put(repairIngredient, unitCost);
 								}
 							}
 						}
 					}
-				} else {
+				}
+				if (recipeIds.isEmpty()) {
 					WARN_NO_RECIPE.add(itemId);
 				}
 			}
@@ -225,21 +226,26 @@ public class TinkerersSmithingLoader {
 									}
 								}
 
-								for (Item upgradeItem : upgradeMaterial.items.stream().filter(upgradeItem -> types.stream().anyMatch(type -> type.contains(upgradeItem))).toList()) {
+								for (Item upgradeItem : upgradeMaterial.items) {
+									if (types.stream().noneMatch(type -> type.contains(upgradeItem))) continue;
 									Multimap<Integer, Item> sacrifices = HashMultimap.create();
 									int upgradeViaCost = 0;
-									for (Item viaItem : map.get(upgradeMaterial.sacrificesVia).items.stream().filter(viaItem -> types.stream().anyMatch(type -> type.contains(viaItem))).toList()) {
-										upgradeViaCost = unitCosts.get(viaItem).values().stream().findFirst().orElse(0);
+									for (Item viaItem : map.get(upgradeMaterial.sacrificesVia).items) {
+										if (types.stream().anyMatch(type -> type.contains(viaItem))) {
+											upgradeViaCost = unitCosts.get(viaItem).values().stream().findFirst().orElse(0);
+										}
 									}
 									if (upgradeViaCost > 0) {
 										for (Item sacrificeItem : sacrificeItems) {
 											List<Collection<Item>> sacrificeTypes = new ArrayList<>();
-											SMITHING_TYPES.forEach((typeId, items) -> {
+											for (Collection<Item> items : SMITHING_TYPES.values()) {
 												if (items.contains(sacrificeItem)) sacrificeTypes.add(items);
-											});
+											}
 											int sacrificesViaCost = 0;
-											for (Item viaItem : sacrificesViaItems.stream().filter(viaItem -> sacrificeTypes.stream().anyMatch(type -> type.contains(viaItem))).toList()) {
-												sacrificesViaCost = unitCosts.get(viaItem).values().stream().findFirst().orElse(0);
+											for (Item viaItem : sacrificesViaItems) {
+												if (sacrificeTypes.stream().anyMatch(type -> type.contains(viaItem))) {
+													sacrificesViaCost = unitCosts.get(viaItem).values().stream().findFirst().orElse(0);
+												}
 											}
 											if (sacrificesViaCost > 0) {
 												sacrifices.put(sacrificesViaCost, sacrificeItem);
