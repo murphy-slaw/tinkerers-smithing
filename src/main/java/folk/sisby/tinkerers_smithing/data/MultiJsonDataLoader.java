@@ -17,7 +17,11 @@ import net.minecraft.util.profiler.Profiler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +43,7 @@ public abstract class MultiJsonDataLoader extends SinglePreparationResourceReloa
 	protected Map<Identifier, Collection<Pair<JsonElement, String>>> prepare(ResourceManager manager, Profiler profiler) {
 		Map<Identifier, Collection<Pair<JsonElement, String>>> outMap = Maps.newHashMap();
 
-		for(Identifier fileId : manager.findResources(this.dataType, path -> path.endsWith(".json"))) {
+		for (Identifier fileId : manager.findResources(this.dataType, path -> path.endsWith(".json"))) {
 			// Remove .json, ignore path prefixes: minecraft:campanion/diamond = minecraft:diamond
 			Identifier id = new Identifier(fileId.getNamespace(), StringUtils.removeEndIgnoreCase(fileId.getPath().substring(fileId.getPath().lastIndexOf('/') + 1), FILE_SUFFIX));
 			try {

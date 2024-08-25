@@ -16,11 +16,9 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.Registry;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -34,16 +32,16 @@ public class SmithingTypeLoader extends MultiJsonDataLoader {
 		super(gson, "smithing_types");
 	}
 
-	@Override
-	public String getName() {
-		return ID.toString();
-	}
-
 	public static void addToTag(Map<Identifier, Collection<Item>> tags, String path, Item item) {
 		Identifier id = new Identifier(path); // minecraft for slot stuff
 		HashSet<Item> mutable = new HashSet<>(tags.computeIfAbsent(id, k -> new HashSet<>()));
 		mutable.add(item);
 		tags.put(id, ImmutableList.copyOf(mutable));
+	}
+
+	@Override
+	public String getName() {
+		return ID.toString();
 	}
 
 	@Override

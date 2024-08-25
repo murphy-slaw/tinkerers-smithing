@@ -16,7 +16,8 @@ import java.util.function.BiConsumer;
 
 @Mixin(SynchronizeRecipesS2CPacket.class)
 public class SynchronizeRecipesS2CPacketMixin implements ServerRecipePacket<SynchronizeRecipesS2CPacket> {
-	@Unique private boolean tinkerersSmithing$fallback = false;
+	@Unique
+	private boolean tinkerersSmithing$fallback = false;
 
 	@ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Ljava/util/function/BiConsumer;)V"), index = 0)
 	private Collection<Recipe<?>> writeSafeRecipes(Collection<Recipe<?>> original) {

@@ -22,7 +22,10 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -31,11 +34,13 @@ import java.util.function.Consumer;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
-	@Unique private boolean isBroken() {
+	@Unique
+	private boolean isBroken() {
 		return TinkerersSmithing.isBroken((ItemStack) (Object) this);
 	}
 
-	@Unique private boolean isKeeper() {
+	@Unique
+	private boolean isKeeper() {
 		return TinkerersSmithing.isKeeper((ItemStack) (Object) this);
 	}
 

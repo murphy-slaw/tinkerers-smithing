@@ -11,6 +11,7 @@ public class TinkerersSmithingClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		ClientPlayNetworking.registerGlobalReceiver(TinkerersSmithing.S2C_PING, (client, handler, buf, sender) -> {});
+		ClientPlayNetworking.registerGlobalReceiver(TinkerersSmithing.S2C_PING, (client, handler, buf, sender) -> {
+		});
 	}
 }

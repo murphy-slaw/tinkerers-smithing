@@ -19,8 +19,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SmithingScreenHandler.class)
 public abstract class SmithingScreenHandlerMixin extends ForgingScreenHandler {
-	@Shadow @Nullable private SmithingRecipe currentRecipe;
-	@Unique private int ingredientsUsed = 0;
+	@Shadow
+	@Nullable
+	private SmithingRecipe currentRecipe;
+	@Unique
+	private int ingredientsUsed = 0;
 
 	public SmithingScreenHandlerMixin(@Nullable ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
 		super(type, syncId, playerInventory, context);

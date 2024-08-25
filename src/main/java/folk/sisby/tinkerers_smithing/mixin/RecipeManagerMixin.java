@@ -16,7 +16,8 @@ import java.util.Map;
 
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin {
-	@Unique private ImmutableMap.Builder<Identifier, Recipe<?>> builder = null;
+	@Unique
+	private ImmutableMap.Builder<Identifier, Recipe<?>> builder = null;
 
 	@ModifyVariable(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;", ordinal = 0), index = 5)
 	private ImmutableMap.Builder<Identifier, Recipe<?>> AddRuntimeRecipes(ImmutableMap.Builder<Identifier, Recipe<?>> builder) {

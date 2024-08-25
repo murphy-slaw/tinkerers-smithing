@@ -27,7 +27,7 @@ public class EmiAnvilDeworkRecipe extends EmiIdentifiedAnvilRecipe implements Em
 	public void addWidgets(WidgetHolder widgets) {
 		widgets.addTexture(EmiTexture.PLUS, 27, 3);
 		widgets.addTexture(EmiTexture.EMPTY_ARROW, 75, 1);
-		widgets.add(new IterativeSlotWidget(i -> getTool(i, false),0, 0).appendTooltip(ingredient -> new OrderedTextTooltipComponent(new LiteralText("Repair Cost: " + ingredient.getEmiStacks().get(0).getItemStack().getRepairCost()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)).asOrderedText())));
+		widgets.add(new IterativeSlotWidget(i -> getTool(i, false), 0, 0).appendTooltip(ingredient -> new OrderedTextTooltipComponent(new LiteralText("Repair Cost: " + ingredient.getEmiStacks().get(0).getItemStack().getRepairCost()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)).asOrderedText())));
 		widgets.add(new IterativeSlotWidget(this::getRepairStack, 49, 0));
 		widgets.add(new IterativeSlotWidget(i -> getTool(i, true), 107, 0).appendTooltip(ingredient -> new OrderedTextTooltipComponent(new LiteralText("Repair Cost: " + ingredient.getEmiStacks().get(0).getItemStack().getRepairCost()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)).asOrderedText())).recipeContext(this));
 	}

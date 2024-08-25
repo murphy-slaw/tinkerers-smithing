@@ -19,7 +19,8 @@ import java.util.Arrays;
 
 @Mixin(Ingredient.class)
 public class IngredientMixin {
-	@Unique private boolean isFootgun() {
+	@Unique
+	private boolean isFootgun() {
 		Ingredient self = (Ingredient) (Object) this;
 		if (Arrays.stream(self.entries).anyMatch(e -> e instanceof Ingredient.TagEntry) && (Registry.ITEM.getEntryList(ItemTags.PLANKS).isEmpty() || Registry.ITEM.getEntryList(ItemTags.PLANKS).get().size() == 0)) {
 			TinkerersSmithing.LOGGER.error("[Tinkerer's Smithing] Cowardly refusing to access an unloaded tag ingredient: {}", self.toJson().toString(), new IllegalStateException("A tag ingredient was accessed before tags are loaded - This can break recipes! Report this to the mod in the trace below."));

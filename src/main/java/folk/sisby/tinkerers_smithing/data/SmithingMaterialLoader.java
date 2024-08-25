@@ -13,11 +13,15 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.Registry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class SmithingMaterialLoader extends MultiJsonDataLoader {
-	public final TinkerersSmithingMaterial.EQUIPMENT_TYPE type;
-
 	public static final String KEY_INHERIT_FROM_ITEM = "inheritFromItem";
 	public static final String KEY_REPAIR_MATERIALS = "repairMaterials";
 	public static final String KEY_ADD_ITEM = "addItem";
@@ -25,6 +29,7 @@ public abstract class SmithingMaterialLoader extends MultiJsonDataLoader {
 	public static final String KEY_UPGRADES_FROM = "upgradesFrom";
 	public static final String KEY_UPGRADES_TO = "upgradesTo";
 	public static final String KEY_SACRIFICE_VIA = "sacrificesVia";
+	public final TinkerersSmithingMaterial.EQUIPMENT_TYPE type;
 
 	public SmithingMaterialLoader(Gson gson, String dataType, TinkerersSmithingMaterial.EQUIPMENT_TYPE type) {
 		super(gson, dataType);
