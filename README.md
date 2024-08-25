@@ -1,13 +1,13 @@
 <!--suppress HtmlDeprecatedTag, XmlDeprecatedElement -->
 <center><img alt="tinkerer's smithing banner" src="https://cdn.modrinth.com/data/RhVpNN5O/images/a6122977eb9e1e1113a567f0e422c16960f8feaa.png" /><br/>
 A sentimental and convenient gear crafting rebalance.<br/>
-Server-side, but with some extra polish (and better <a href="https://modrinth.com/mod/emi">EMI</a> support) on the client.<br/>
-Requires <a href="https://modrinth.com/mod/connector">Connector</a> and <a href="https://modrinth.com/mod/forgified-fabric-api">FFAPI</a> on forge.<br/>
+Server-side, but with some extra polish on the client.<br/>
+Requires <a href="https://modrinth.com/mod/connector">Connector</a> and <a href="https://modrinth.com/mod/forgified-fabric-api">FFAPI</a> on (neo)forge.<br/>
 </center>
 
 ---
 
-Tinkerer's Smithing is a data-driven equipment crafting rebalance that:
+**Tinkerer's Smithing** is a server-side, data-driven equipment crafting rebalance that:
 
 - Allows repairing every vanilla item that has durability for no level cost (even fishing rods)
 - Allows upgrading all tools and armor between material tiers (even chainmail)
@@ -15,6 +15,7 @@ Tinkerer's Smithing is a data-driven equipment crafting rebalance that:
 - Makes all the enchanted treasure you find lying around actually useful
 - Forgoes nerfing or removing mending or table-grindstone enchanting by instead buffing everything else
 - Balances all of its recipe types on the vanilla cost of equipment
+- Has full [EMI](https://modrinth.com/mod/emi) support for all added recipe types
 
 ---
 
@@ -52,17 +53,15 @@ Tinkerer's Smithing is a data-driven equipment crafting rebalance that:
 
 ### Emergent Mechanics
 
-|                                                                                                                                                                                                                                                                               |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![Treasure Upgrading](https://cdn.modrinth.com/data/RhVpNN5O/images/aed8e9f96c645eb5dc2a608f624ca8742e4545fc.png)                                                                                                                                                             |
+|                                                                                                                                                                                                                                                                        |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![Treasure Upgrading](https://cdn.modrinth.com/data/RhVpNN5O/images/aed8e9f96c645eb5dc2a608f624ca8742e4545fc.png)                                                                                                                                                      |
 | **Useful Treasure**<br/> All vanilla materials are linked to eachother via the upgrade tree.<br/> It doesn't matter if a pair of Protection IV leggings are made of gold, chain, or leather - just upgrade them to the right material, then use them at an anvil.<br/> |
-| ![Miscellaneous Repair](https://cdn.modrinth.com/data/RhVpNN5O/images/cbaab6458d13eb934ab237855af8c6a99c063c71.png)                                                                                                                                                           |
-| **Miscellaneous Repair**<br/> All previously unrepairable items now have repair recipes - including utility tools.                                                                                                                                                            |
-|                                                                                                                                                                                                                                                                               |
+| ![Miscellaneous Repair](https://cdn.modrinth.com/data/RhVpNN5O/images/cbaab6458d13eb934ab237855af8c6a99c063c71.png)                                                                                                                                                    |
+| **Miscellaneous Repair**<br/> All previously unrepairable items now have repair recipes - including utility tools.                                                                                                                                                     |
+|                                                                                                                                                                                                                                                                        |
 
----
-
-### Modpack Configuration
+## Modpack Configuration
 
 Recipes are driven by defining **Tool Materials**, **Armor Materials**, **Equipment Types**, and **Unit Cost Overrides**.
 
@@ -76,21 +75,13 @@ Recipes are driven by defining **Tool Materials**, **Armor Materials**, **Equipm
 
 For data structure examples, check out the [built-in datapack](https://github.com/sisby-folk/tinkerers-smithing/tree/1.19/src/main/resources/data/minecraft) or the mod compatibility packs in [Tinkerer's Quilt](https://github.com/sisby-folk/tinkerers-quilt/tree/1.19_modded/resources/datapacks).
 
----
-
-### Older Versions
-
-For minecraft 1.15-1.17, 1.0 is available as a [datapack](https://download-directory.github.io/?url=https://github.com/sisby-folk/tinkerers-smithing/tree/nbtc2/src/main/resources) for [NBT Crafting](https://modrinth.com/mod/nbt-crafting) - see the [old readme](https://github.com/sisby-folk/tinkerers-smithing/blob/nbtc2-experiments/README.md) for features.
-
----
-
-### Afterword
+## Afterword
 
 All mods are built on the work of many others.
 
 This mod is included in [Tinkerer's Quilt](https://modrinth.com/modpack/tinkerers-quilt) - our modpack about rediscovering vanilla.
 
-We're open to suggestions for how to implement stuff better - if you see something wonky and have an idea - let us know.
+We're open to better ways to implement our mods. If you see something odd and have an idea, let us know!
 
 ---
 
