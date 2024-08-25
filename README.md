@@ -15,7 +15,7 @@ Requires <a href="https://modrinth.com/mod/connector">Connector</a> and <a href=
 - Makes all the enchanted treasure you find lying around actually useful
 - Forgoes nerfing or removing mending or table-grindstone enchanting by instead buffing everything else
 - Balances all of its recipe types on the vanilla cost of equipment
-- Is fully integrated with [EMI](https://modrinth.com/mod/emi) for all added recipe types
+- Has full [EMI](https://modrinth.com/mod/emi) support for all added recipe types
 
 ---
 
