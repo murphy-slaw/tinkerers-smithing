@@ -1,41 +1,40 @@
 {
-  "schemaVersion": 1,
-  "id": "tinkerers_smithing",
-  "version": "${version}",
-  "name": "Tinkerer's Smithing",
-  "description": "A sentimental and convenient rebalance of gear crafting, repair, enchanting, and smithing.",
-  "authors": [
-    "Sisby folk"
-  ],
-  "contact": {
-    "homepage": "https://modrinth.com/mod/tinkerers-smithing",
-    "issues": "https://github.com/sisby-folk/tinkerers-smithing/issues",
-    "sources": "https://github.com/sisby-folk/tinkerers-smithing"
-  },
-  "license": "LGPL-3.0-only",
-  "icon": "assets/tinkerers_smithing/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "folk.sisby.tinkerers_smithing.TinkerersSmithing"
-    ],
-    "client": [
-      "folk.sisby.tinkerers_smithing.client.TinkerersSmithingClient"
-    ],
-    "emi": [
-      "folk.sisby.tinkerers_smithing.client.emi.TinkerersSmithingPlugin"
-    ]
-  },
-  "depends": {
-    "minecraft": ">=${mc}",
-    "fabricloader": ">=${fl}",
-    "fabric-api": ">=${fapi}"
-  },
-  "suggests": {
-    "emi": ">=${emi}"
-  },
-  "accessWidener": "tinkerers_smithing.accesswidener",
-  "mixins": [
-    "tinkerers_smithing.mixins.json"
-  ]
+	"schemaVersion": 1,
+	"id": "${modId}",
+	"version": "${version}",
+	"name": "${modName}",
+	"description": "${modDescription}",
+	"authors": [
+		"${authors}"
+	],
+	"contact": {
+		"homepage": "${homepage}",
+		"issues": "${issues}",
+		"sources": "${sources}"
+	},
+	"license": "${license}",
+	"icon": "assets/${modId}/icon.png",
+	"mixins": [
+		"${modId}.mixins.json"
+	],
+	"accessWidener": "${modId}.accesswidener",
+	"depends": {
+		"minecraft": ">=${mc}",
+		"fabricloader": ">=${fl}",
+		"fabric-api": ">=${fapi}"
+	},
+	"suggests": {
+		"emi": ">=${emi}"
+	},
+	"entrypoints": {
+		"main": [
+			"folk.sisby.tinkerers_smithing.TinkerersSmithing"
+		],
+		"client": [
+			"folk.sisby.tinkerers_smithing.client.TinkerersSmithingClient"
+		],
+		"emi": [
+			"folk.sisby.tinkerers_smithing.client.emi.TinkerersSmithingPlugin"
+		]
+	}
 }
