@@ -47,10 +47,10 @@ public class TinkerersSmithingPlugin implements EmiPlugin {
 		replacedIdPrefixes.clear();
 		addedRecipes.clear();
 
-        registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(ShapelessUpgradeRecipe.class::isInstance).map(r -> new EmiShapelessUpgradeRecipe((ShapelessUpgradeRecipe) r)).forEach(this::replaceRecipe);
-        registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(ShapelessRepairRecipe.class::isInstance).map(r -> new EmiShapelessRepairRecipe((ShapelessRepairRecipe) r)).forEach(this::replaceRecipe);
-        registry.getRecipeManager().listAllOfType(RecipeType.SMITHING).stream().filter(SmithingUpgradeRecipe.class::isInstance).map(r -> new EmiSmithingUpgradeRecipe((SmithingUpgradeRecipe) r)).forEach(this::replaceRecipe);
-        registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(recipe -> recipe instanceof ShapelessRepairRecipe).forEach(r -> replaceAnvilRecipe((ShapelessRepairRecipe) r));
+		registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(ShapelessUpgradeRecipe.class::isInstance).map(r -> new EmiShapelessUpgradeRecipe((ShapelessUpgradeRecipe) r)).forEach(this::replaceRecipe);
+		registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(ShapelessRepairRecipe.class::isInstance).map(r -> new EmiShapelessRepairRecipe((ShapelessRepairRecipe) r)).forEach(this::replaceRecipe);
+		registry.getRecipeManager().listAllOfType(RecipeType.SMITHING).stream().filter(SmithingUpgradeRecipe.class::isInstance).map(r -> new EmiSmithingUpgradeRecipe((SmithingUpgradeRecipe) r)).forEach(this::replaceRecipe);
+		registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(recipe -> recipe instanceof ShapelessRepairRecipe).forEach(r -> replaceAnvilRecipe((ShapelessRepairRecipe) r));
 		Multimap<ItemPair, SacrificeUpgradeRecipe> cappedRecipes = HashMultimap.create();
 		for (SmithingRecipe recipe : registry.getRecipeManager().listAllOfType(RecipeType.SMITHING)) {
 			if (recipe instanceof SacrificeUpgradeRecipe sur) {

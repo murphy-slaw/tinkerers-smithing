@@ -36,16 +36,16 @@ public class SmithingTypeLoader extends MultiJsonDataLoader {
 		super(gson, "smithing_types");
 	}
 
-	@Override
-	public String getName() {
-		return ID.toString();
-	}
-
 	public static void addToTag(Map<Identifier, Collection<Item>> tags, String path, Item item) {
 		Identifier id = new Identifier(path); // minecraft for slot stuff
 		HashSet<Item> mutable = new HashSet<>(tags.computeIfAbsent(id, k -> new HashSet<>()));
 		mutable.add(item);
 		tags.put(id, ImmutableList.copyOf(mutable));
+	}
+
+	@Override
+	public String getName() {
+		return ID.toString();
 	}
 
 	@Override

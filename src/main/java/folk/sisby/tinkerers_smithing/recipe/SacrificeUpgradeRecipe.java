@@ -37,7 +37,7 @@ public class SacrificeUpgradeRecipe extends SmithingRecipe implements ServerReci
 	}
 
 	public static int resultDamage(Item resultItem, int additionUnits, int resultUnits, int additionDamage, int additionMaxDamage) {
-		return (int) Math.ceil(resultItem.getMaxDamage() - ((additionMaxDamage - additionDamage) * ((double) additionUnits * resultItem.getMaxDamage()) / ((double)additionMaxDamage * resultUnits)));
+		return (int) Math.ceil(resultItem.getMaxDamage() - ((additionMaxDamage - additionDamage) * ((double) additionUnits * resultItem.getMaxDamage()) / ((double) additionMaxDamage * resultUnits)));
 	}
 
 	@Override
@@ -51,6 +51,16 @@ public class SacrificeUpgradeRecipe extends SmithingRecipe implements ServerReci
 	@Override
 	public boolean isIgnoredInRecipeBook() {
 		return true;
+	}
+
+	@Override
+	public RecipeSerializer<?> getSerializer() {
+		return TinkerersSmithing.SACRIFICE_UPGRADE_SERIALIZER;
+	}
+
+	@Override
+	public @Nullable RecipeSerializer<SmithingRecipe> getFallbackSerializer() {
+		return RecipeSerializer.SMITHING;
 	}
 
 	public static class Serializer implements RecipeSerializer<SacrificeUpgradeRecipe> {
@@ -79,15 +89,5 @@ public class SacrificeUpgradeRecipe extends SmithingRecipe implements ServerReci
 			buf.writeVarInt(Item.getRawId(recipe.resultItem));
 			buf.writeVarInt(recipe.resultUnits);
 		}
-	}
-
-	@Override
-	public RecipeSerializer<?> getSerializer() {
-		return TinkerersSmithing.SACRIFICE_UPGRADE_SERIALIZER;
-	}
-
-	@Override
-	public @Nullable RecipeSerializer<SmithingRecipe> getFallbackSerializer() {
-		return RecipeSerializer.SMITHING;
 	}
 }

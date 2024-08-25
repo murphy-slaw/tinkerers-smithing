@@ -60,10 +60,10 @@ public class ShapelessRepairRecipe extends ShapelessRecipe implements ServerReci
 		ItemStack base = findBase(inventory);
 		long units = inventory.stacks.stream().filter(addition).count();
 		long empty = inventory.stacks.stream().filter(ItemStack::isEmpty).count();
-        if (base == null || units <= 0 || units > additionCount || empty != (inventory.size() - units - 1)) return false;
+		if (base == null || units <= 0 || units > additionCount || empty != (inventory.size() - units - 1)) return false;
 
-        return base.getDamage() - ((int) Math.ceil((base.getMaxDamage() * (units - 1)) / (double) additionCount)) > 0;
-    }
+		return base.getDamage() - ((int) Math.ceil((base.getMaxDamage() * (units - 1)) / (double) additionCount)) > 0;
+	}
 
 	@Override
 	public ItemStack craft(CraftingInventory inventory) {
@@ -87,6 +87,16 @@ public class ShapelessRepairRecipe extends ShapelessRecipe implements ServerReci
 		return true;
 	}
 
+	@Override
+	public RecipeSerializer<?> getSerializer() {
+		return TinkerersSmithing.SHAPELESS_REPAIR_SERIALIZER;
+	}
+
+	@Override
+	public @Nullable RecipeSerializer<ShapelessRecipe> getFallbackSerializer() {
+		return RecipeSerializer.SHAPELESS;
+	}
+
 	public static class Serializer implements RecipeSerializer<ShapelessRepairRecipe> {
 		public ShapelessRepairRecipe read(Identifier id, JsonObject json) {
 			Item baseItem = JsonHelper.getItem(json, "base");
@@ -108,15 +118,5 @@ public class ShapelessRepairRecipe extends ShapelessRecipe implements ServerReci
 			recipe.addition.write(buf);
 			buf.writeVarInt(recipe.additionCount);
 		}
-	}
-
-	@Override
-	public RecipeSerializer<?> getSerializer() {
-		return TinkerersSmithing.SHAPELESS_REPAIR_SERIALIZER;
-	}
-
-	@Override
-	public @Nullable RecipeSerializer<ShapelessRecipe> getFallbackSerializer() {
-		return RecipeSerializer.SHAPELESS;
 	}
 }

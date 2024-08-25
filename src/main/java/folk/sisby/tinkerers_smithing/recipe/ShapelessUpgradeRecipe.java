@@ -50,6 +50,16 @@ public class ShapelessUpgradeRecipe extends ShapelessRecipe implements ServerRec
 		return output;
 	}
 
+	@Override
+	public RecipeSerializer<?> getSerializer() {
+		return TinkerersSmithing.SHAPELESS_UPGRADE_SERIALIZER;
+	}
+
+	@Override
+	public @Nullable RecipeSerializer<ShapelessRecipe> getFallbackSerializer() {
+		return RecipeSerializer.SHAPELESS;
+	}
+
 	public static class Serializer implements RecipeSerializer<ShapelessUpgradeRecipe> {
 		public ShapelessUpgradeRecipe read(Identifier id, JsonObject json) {
 			Item baseItem = JsonHelper.getItem(json, "base");
@@ -73,15 +83,5 @@ public class ShapelessUpgradeRecipe extends ShapelessRecipe implements ServerRec
 			buf.writeVarInt(recipe.additionCount);
 			buf.writeVarInt(Item.getRawId(recipe.resultItem));
 		}
-	}
-
-	@Override
-	public RecipeSerializer<?> getSerializer() {
-		return TinkerersSmithing.SHAPELESS_UPGRADE_SERIALIZER;
-	}
-
-	@Override
-	public @Nullable RecipeSerializer<ShapelessRecipe> getFallbackSerializer() {
-		return RecipeSerializer.SHAPELESS;
 	}
 }

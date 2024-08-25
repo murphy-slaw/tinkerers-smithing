@@ -1,5 +1,5 @@
 {
-  "inheritFromItem": [
-    "minecraft:turtle_helmet"
-  ]
+	"inheritFromItem": [
+		"minecraft:turtle_helmet"
+	]
 }

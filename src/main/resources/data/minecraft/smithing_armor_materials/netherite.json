@@ -1,9 +1,9 @@
 {
-  "inheritFromItem": [
-    "minecraft:netherite_helmet"
-  ],
-  "sacrificesVia": "minecraft:diamond",
-  "upgradesFrom": [
-    "minecraft:gold"
-  ]
+	"inheritFromItem": [
+		"minecraft:netherite_helmet"
+	],
+	"sacrificesVia": "minecraft:diamond",
+	"upgradesFrom": [
+		"minecraft:gold"
+	]
 }

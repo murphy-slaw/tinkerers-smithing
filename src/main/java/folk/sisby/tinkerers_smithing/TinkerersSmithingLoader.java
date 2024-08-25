@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +41,30 @@ public class TinkerersSmithingLoader {
 	public final Map<Item, SmithingUnitCostManager.UnitCostOverride> COST_OVERRIDES = new HashMap<>();
 
 	public final List<Recipe<?>> RECIPES = new ArrayList<>();
+
+	public static Identifier recipeId(String recipeType, String... names) {
+		return new Identifier(ID, recipeType + "/" + String.join("/", names));
+	}
+
+	public static Identifier recipeId(String recipeType, Identifier... ids) {
+		return recipeId(recipeType, Arrays.stream(ids).map(id -> id.getNamespace().equals("minecraft") ? id.getPath() : id.getNamespace() + "/" + id.getPath()).toArray(String[]::new));
+	}
+
+	public static Identifier recipeId(String recipeType, Item... items) {
+		return recipeId(recipeType, Arrays.stream(items).map(Registry.ITEM::getId).toArray(Identifier[]::new));
+	}
+
+	public static Identifier appendId(Identifier id, String name) {
+		return new Identifier(id.toString() + "/" + name);
+	}
+
+	public static Identifier repairRecipeId(Item baseItem, Ingredient ingredient) {
+		if (ingredient.entries.length == 0) {
+			throw new IllegalArgumentException("Ingredients for Tinkerer's Smithing recipes can't be empty! When repairing item %s".formatted(Registry.ITEM.getId(baseItem)));
+		}
+		Identifier ingredientId = ingredient.entries[0] instanceof Ingredient.StackEntry se ? Registry.ITEM.getId(se.stack.getItem()) : ingredient.entries[0] instanceof Ingredient.TagEntry te ? te.tag.id() : new Identifier("ERROR");
+		return recipeId("repair", Registry.ITEM.getId(baseItem), ingredientId);
+	}
 
 	public void generateItemSmithingData(Map<Identifier, Recipe<?>> recipes) {
 		new LoaderRun().generateItemSmithingData(recipes);
@@ -314,29 +337,5 @@ public class TinkerersSmithingLoader {
 				LOGGER.warn("[Tinkerer's Smithing] Found {} damageable items without repair materials: [{}]", WARN_NO_MATERIALS.size(), WARN_NO_MATERIALS.stream().map(Identifier::toString).collect(Collectors.joining(", ")));
 			LOGGER.info("[Tinkerer's Smithing] Data Initialized!");
 		}
-	}
-
-	public static Identifier recipeId(String recipeType, String... names) {
-		return new Identifier(ID, recipeType + "/" + String.join("/", names));
-	}
-
-	public static Identifier recipeId(String recipeType, Identifier... ids) {
-		return recipeId(recipeType, Arrays.stream(ids).map(id -> id.getNamespace().equals("minecraft") ? id.getPath() : id.getNamespace() + "/" + id.getPath()).toArray(String[]::new));
-	}
-
-	public static Identifier recipeId(String recipeType, Item... items) {
-		return recipeId(recipeType, Arrays.stream(items).map(Registry.ITEM::getId).toArray(Identifier[]::new));
-	}
-
-	public static Identifier appendId(Identifier id, String name) {
-		return new Identifier(id.toString() + "/" + name);
-	}
-
-	public static Identifier repairRecipeId(Item baseItem, Ingredient ingredient) {
-		if (ingredient.entries.length == 0) {
-			throw new IllegalArgumentException("Ingredients for Tinkerer's Smithing recipes can't be empty! When repairing item %s".formatted(Registry.ITEM.getId(baseItem)));
-		}
-		Identifier ingredientId = ingredient.entries[0] instanceof Ingredient.StackEntry se ? Registry.ITEM.getId(se.stack.getItem()) : ingredient.entries[0] instanceof Ingredient.TagEntry te ? te.tag.id() : new Identifier("ERROR");
-		return recipeId("repair", Registry.ITEM.getId(baseItem), ingredientId);
 	}
 }

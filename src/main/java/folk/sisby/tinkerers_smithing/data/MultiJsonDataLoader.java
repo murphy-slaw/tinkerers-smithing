@@ -14,7 +14,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Pair;
 import net.minecraft.util.profiler.Profiler;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -40,7 +39,7 @@ public abstract class MultiJsonDataLoader extends SinglePreparationResourceReloa
 	protected Map<Identifier, Collection<Pair<JsonElement, String>>> prepare(ResourceManager manager, Profiler profiler) {
 		Map<Identifier, Collection<Pair<JsonElement, String>>> outMap = Maps.newHashMap();
 
-		for(Map.Entry<Identifier, List<Resource>> entry : manager.findAllResources(this.dataType, id -> id.getPath().endsWith(".json")).entrySet()) {
+		for (Map.Entry<Identifier, List<Resource>> entry : manager.findAllResources(this.dataType, id -> id.getPath().endsWith(".json")).entrySet()) {
 			Identifier fileId = entry.getKey();
 			Identifier id = new Identifier(fileId.getNamespace(), fileId.getPath().substring(dataType.length() + 1, fileId.getPath().length() - FILE_SUFFIX.length()));
 

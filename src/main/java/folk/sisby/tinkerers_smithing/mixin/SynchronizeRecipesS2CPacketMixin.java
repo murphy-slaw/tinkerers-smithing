@@ -15,7 +15,8 @@ import java.util.Collection;
 
 @Mixin(SynchronizeRecipesS2CPacket.class)
 public class SynchronizeRecipesS2CPacketMixin implements ServerRecipePacket<SynchronizeRecipesS2CPacket> {
-	@Unique private boolean tinkerersSmithing$fallback = false;
+	@Unique
+	private boolean tinkerersSmithing$fallback = false;
 
 	@ModifyArg(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketByteBuf;writeCollection(Ljava/util/Collection;Lnet/minecraft/network/PacketByteBuf$PacketWriter;)V"), index = 0)
 	private Collection<Recipe<?>> writeSafeRecipes(Collection<Recipe<?>> original) {
