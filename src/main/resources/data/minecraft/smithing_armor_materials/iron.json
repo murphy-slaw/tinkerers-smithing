@@ -1,8 +1,8 @@
 {
-  "inheritFromItem": [
-    "minecraft:iron_helmet"
-  ],
-  "upgradesTo": [
-    "minecraft:diamond"
-  ]
+	"inheritFromItem": [
+		"minecraft:iron_helmet"
+	],
+	"upgradesTo": [
+		"minecraft:diamond"
+	]
 }

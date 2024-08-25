@@ -47,6 +47,16 @@ public class SmithingUpgradeRecipe extends SmithingTransformRecipe implements Se
 		return output;
 	}
 
+	@Override
+	public RecipeSerializer<?> getSerializer() {
+		return TinkerersSmithing.SMITHING_UPGRADE_SERIALIZER;
+	}
+
+	@Override
+	public @Nullable RecipeSerializer<SmithingTransformRecipe> getFallbackSerializer() {
+		return RecipeSerializer.SMITHING_TRANSFORM;
+	}
+
 	public static class Serializer implements RecipeSerializer<SmithingUpgradeRecipe> {
 		public SmithingUpgradeRecipe read(Identifier id, JsonObject json) {
 			Item baseItem = JsonHelper.getItem(json, "base");
@@ -70,15 +80,5 @@ public class SmithingUpgradeRecipe extends SmithingTransformRecipe implements Se
 			buf.writeVarInt(recipe.additionCount);
 			buf.writeVarInt(Item.getRawId(recipe.resultItem));
 		}
-	}
-
-	@Override
-	public RecipeSerializer<?> getSerializer() {
-		return TinkerersSmithing.SMITHING_UPGRADE_SERIALIZER;
-	}
-
-	@Override
-	public @Nullable RecipeSerializer<SmithingTransformRecipe> getFallbackSerializer() {
-		return RecipeSerializer.SMITHING_TRANSFORM;
 	}
 }

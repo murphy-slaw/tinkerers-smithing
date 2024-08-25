@@ -29,8 +29,11 @@ import java.util.Map;
 
 @Mixin(AnvilScreenHandler.class)
 public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
-	@Shadow private int repairItemUsage;
-	@Final @Shadow private Property levelCost;
+	@Shadow
+	private int repairItemUsage;
+	@Final
+	@Shadow
+	private Property levelCost;
 
 	public AnvilScreenHandlerMixin(@Nullable ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
 		super(type, syncId, playerInventory, context);
@@ -84,8 +87,8 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 		if (ingredient.isIn(TinkerersSmithing.DEWORK_INGREDIENTS) && base.getRepairCost() > 0) {
 			ItemStack result = base.copy();
 			this.repairItemUsage = 0;
-			do  {
-				result.setRepairCost(((result.getRepairCost() + 1)/2)-1);
+			do {
+				result.setRepairCost(((result.getRepairCost() + 1) / 2) - 1);
 				this.repairItemUsage++;
 			} while (result.getRepairCost() > 0 && this.repairItemUsage < ingredient.getCount());
 			this.getSlot(AnvilScreenHandler.OUTPUT_ID).setStack(result);
@@ -95,7 +98,8 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 		}
 	}
 
-	@Unique private int getSRCost(Map<Enchantment, Integer> base, Map<Enchantment, Integer> ingredient) {
+	@Unique
+	private int getSRCost(Map<Enchantment, Integer> base, Map<Enchantment, Integer> ingredient) {
 		return ingredient.entrySet().stream().map(entry -> {
 			Enchantment enchantment = entry.getKey();
 			int level = entry.getValue();
@@ -111,7 +115,8 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 		}).reduce(0, Integer::sum);
 	}
 
-	@Unique private boolean doSwapEnchantments(Map<Enchantment, Integer> base, Map<Enchantment, Integer> ingredient) {
+	@Unique
+	private boolean doSwapEnchantments(Map<Enchantment, Integer> base, Map<Enchantment, Integer> ingredient) {
 		return !(this.getSlot(AnvilScreenHandler.INPUT_2_ID).getStack().isOf(Items.ENCHANTED_BOOK)) && getSRCost(base, ingredient) > getSRCost(ingredient, base);
 	}
 

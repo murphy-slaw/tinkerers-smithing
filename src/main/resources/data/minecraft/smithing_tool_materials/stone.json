@@ -1,8 +1,8 @@
 {
-  "inheritFromItem": [
-    "minecraft:stone_pickaxe"
-  ],
-  "upgradesTo": [
-    "minecraft:iron"
-  ]
+	"inheritFromItem": [
+		"minecraft:stone_pickaxe"
+	],
+	"upgradesTo": [
+		"minecraft:iron"
+	]
 }

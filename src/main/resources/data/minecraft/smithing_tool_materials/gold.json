@@ -1,5 +1,5 @@
 {
-  "inheritFromItem": [
-    "minecraft:golden_pickaxe"
-  ]
+	"inheritFromItem": [
+		"minecraft:golden_pickaxe"
+	]
 }

@@ -1,9 +1,9 @@
 {
-  "replace": true,
-  "values": [
-    {
-      "cost": 4,
-      "item": "minecraft:chain"
-    }
-  ]
+	"replace": true,
+	"values": [
+		{
+			"cost": 4,
+			"item": "minecraft:chain"
+		}
+	]
 }

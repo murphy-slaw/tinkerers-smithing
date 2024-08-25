@@ -8,8 +8,6 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.registry.Registries;
 
 public interface ServerRecipePacket<T extends Packet<?>> {
-	T tinkerersSmithing$withFallback();
-
 	static <T extends F, F extends Recipe<?>> void writeRecipeWithFallback(PacketByteBuf buf, T recipe) {
 		if (recipe instanceof ServerRecipe<?> sr) {
 			RecipeSerializer<F> serializer = (RecipeSerializer<F>) sr.getFallbackSerializer();
@@ -20,4 +18,6 @@ public interface ServerRecipePacket<T extends Packet<?>> {
 			SynchronizeRecipesS2CPacket.writeRecipe(buf, recipe);
 		}
 	}
+
+	T tinkerersSmithing$withFallback();
 }

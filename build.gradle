@@ -44,7 +44,7 @@ processResources {
 		mc            : compatibleVersions.split(", ")[0],
 		fl            : libs.versions.fl.get(),
 		fapi          : libs.versions.fapi.get(),
-		emi          : libs.versions.emi.get()
+		emi           : libs.versions.emi.get()
 	]
 	inputs.properties(meta)
 	filesMatching("*.mod.json") { expand(meta) }

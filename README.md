@@ -66,12 +66,12 @@ Requires <a href="https://modrinth.com/mod/connector">Connector</a> and <a href=
 Recipes are driven by defining **Tool Materials**, **Armor Materials**, **Equipment Types**, and **Unit Cost Overrides**.
 
 - **Materials** inherit from vanilla tool/armor materials. They define upgrade paths like Iron->Diamond.
-    - By default, all vanilla materials are defined.
+	- By default, all vanilla materials are defined.
 - **Types** define "alike" items. Items with matching types can upgrade .
-    - By default, the 5 tools (e.g. `c:swords`) and 4 armor slots are defined.
+	- By default, the 5 tools (e.g. `c:swords`) and 4 armor slots are defined.
 - **Unit Cost** is what an item costs to upgrade to or repair. It's usually guessed from the material and a recipe.
-    - By default, vanilla non-tool/armor items are made repairable by overriding this.
-    - Netherite is also overridden to have appropriate diamond unit costs.
+	- By default, vanilla non-tool/armor items are made repairable by overriding this.
+	- Netherite is also overridden to have appropriate diamond unit costs.
 
 For data structure examples, check out the [built-in datapack](https://github.com/sisby-folk/tinkerers-smithing/tree/1.19/src/main/resources/data/minecraft) or the mod compatibility packs in [Tinkerer's Quilt](https://github.com/sisby-folk/tinkerers-quilt/tree/1.19_modded/resources/datapacks).
 

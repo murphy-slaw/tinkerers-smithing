@@ -12,7 +12,6 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.ShapelessRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
@@ -63,10 +62,10 @@ public class ShapelessRepairRecipe extends ShapelessRecipe implements ServerReci
 		ItemStack base = findBase(inventory);
 		long units = inventory.getInputStacks().stream().filter(addition).count();
 		long empty = inventory.getInputStacks().stream().filter(ItemStack::isEmpty).count();
-        if (base == null || units <= 0 || units > additionCount || empty != (inventory.size() - units - 1)) return false;
+		if (base == null || units <= 0 || units > additionCount || empty != (inventory.size() - units - 1)) return false;
 
-        return base.getDamage() - ((int) Math.ceil((base.getMaxDamage() * (units - 1)) / (double) additionCount)) > 0;
-    }
+		return base.getDamage() - ((int) Math.ceil((base.getMaxDamage() * (units - 1)) / (double) additionCount)) > 0;
+	}
 
 	@Override
 	public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager registryManager) {
@@ -90,6 +89,16 @@ public class ShapelessRepairRecipe extends ShapelessRecipe implements ServerReci
 		return true;
 	}
 
+	@Override
+	public RecipeSerializer<?> getSerializer() {
+		return TinkerersSmithing.SHAPELESS_REPAIR_SERIALIZER;
+	}
+
+	@Override
+	public @Nullable RecipeSerializer<ShapelessRecipe> getFallbackSerializer() {
+		return RecipeSerializer.SHAPELESS;
+	}
+
 	public static class Serializer implements RecipeSerializer<ShapelessRepairRecipe> {
 		public ShapelessRepairRecipe read(Identifier id, JsonObject json) {
 			Item baseItem = JsonHelper.getItem(json, "base");
@@ -111,15 +120,5 @@ public class ShapelessRepairRecipe extends ShapelessRecipe implements ServerReci
 			recipe.addition.write(buf);
 			buf.writeVarInt(recipe.additionCount);
 		}
-	}
-
-	@Override
-	public RecipeSerializer<?> getSerializer() {
-		return TinkerersSmithing.SHAPELESS_REPAIR_SERIALIZER;
-	}
-
-	@Override
-	public @Nullable RecipeSerializer<ShapelessRecipe> getFallbackSerializer() {
-		return RecipeSerializer.SHAPELESS;
 	}
 }

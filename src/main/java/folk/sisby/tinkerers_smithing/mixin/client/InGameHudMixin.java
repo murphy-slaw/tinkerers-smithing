@@ -14,7 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(InGameHud.class)
 public class InGameHudMixin {
-	@Shadow private ItemStack currentStack;
+	@Shadow
+	private ItemStack currentStack;
 
 	@ModifyExpressionValue(method = "renderHeldItemTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/Text;empty()Lnet/minecraft/text/MutableText;", ordinal = 0))
 	private MutableText showBrokenHeldItemTooltip(MutableText text) {
