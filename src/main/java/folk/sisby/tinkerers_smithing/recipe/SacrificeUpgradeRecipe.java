@@ -47,7 +47,7 @@ public class SacrificeUpgradeRecipe extends SmithingTransformRecipe implements S
 	}
 
 	public static int resultDamage(Item resultItem, int additionUnits, int resultUnits, int additionDamage, int additionMaxDamage) {
-		if (resultItem.getMaxDamage() == 0) return additionUnits * (additionDamage / (double) additionMaxDamage) >= resultUnits ? 0 : 1;
+		if (resultItem.getDefaultStack().getMaxDamage() == 0) return additionUnits * (additionDamage / (double) additionMaxDamage) >= resultUnits ? 0 : 1;
 		return (int) Math.ceil(resultItem.getDefaultStack().getMaxDamage() - ((additionMaxDamage - additionDamage) * ((double) additionUnits * resultItem.getDefaultStack().getMaxDamage()) / ((double) additionMaxDamage * resultUnits)));
 	}
 
