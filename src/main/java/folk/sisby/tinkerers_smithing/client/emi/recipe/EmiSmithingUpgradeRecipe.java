@@ -33,8 +33,13 @@ public class EmiSmithingUpgradeRecipe extends EmiSmithingRecipe implements EmiRe
 		widgets.addTexture(EmiTexture.PLUS, 27, 3);
 		widgets.addTexture(EmiTexture.EMPTY_ARROW, 75, 1);
 		widgets.addSlot(EmiStack.of(baseItem), 0, 0);
-		widgets.add(new IterativeSlotWidget(this::getRepairStack, 49, 0));
-		widgets.add(new IterativeSlotWidget(this::getTool, 107, 0).recipeContext(this));
+		if (resultItem.getDefaultStack().getMaxDamage() == 0) {
+			widgets.addSlot(getInputs().get(1).copy().setAmount(additionCount), 49, 0);
+			widgets.addSlot(EmiStack.of(resultItem.getDefaultStack().copy()), 107, 0).recipeContext(this);
+		} else {
+			widgets.add(new IterativeSlotWidget(this::getRepairStack, 49, 0));
+			widgets.add(new IterativeSlotWidget(this::getTool, 107, 0)).recipeContext(this);
+		}
 	}
 
 	private int getStackCount(long i) {
