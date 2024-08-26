@@ -59,7 +59,11 @@ public class TinkerersSmithingPlugin implements EmiPlugin {
 					cappedRecipes.put(new ItemPair(sur.baseItem, sur.resultItem), sur);
 					continue;
 				}
-				replaceRecipe(new EmiSacrificeUpgradeRecipe(sur));
+				if (sur.resultItem.getDefaultStack().getMaxDamage() > 0) {
+					replaceRecipe(new EmiSacrificeUpgradeRecipe(sur));
+				} else {
+					removeRecipe(new EmiSacrificeUpgradeRecipe(sur));
+				}
 			}
 		}
 		for (ItemPair key : cappedRecipes.keySet()) {
@@ -82,6 +86,10 @@ public class TinkerersSmithingPlugin implements EmiPlugin {
 				registry.addRecipe(new EmiAnvilDeworkRecipe(EmiStack.of(item), EmiIngredient.of(TinkerersSmithing.DEWORK_INGREDIENTS), TinkerersSmithingLoader.recipeId("dework", item)));
 			}
 		}
+	}
+
+	private void removeRecipe(EmiRecipe recipe) {
+		replacedIds.add(recipe.getId());
 	}
 
 	private void replaceRecipe(EmiRecipe recipe) {
