@@ -301,7 +301,9 @@ public class TinkerersSmithingLoader {
 			Map<Item, Map<Ingredient, Integer>> unitCosts = new HashMap<>();
 			for (Item item : Registries.ITEM) {
 				Map<Ingredient, Integer> unitCost = getUnitCosts(item, recipes);
-				unitCost.forEach((unit, count) -> RECIPES.add(new ShapelessRepairRecipe(item, unit, count).toEntry()));
+				if (item.getDefaultStack().getMaxDamage() > 0) {
+					unitCost.forEach((unit, count) -> RECIPES.add(new ShapelessRepairRecipe(item, unit, count).toEntry()));
+				}
 				unitCosts.put(item, unitCost);
 			}
 			for (Item base : Registries.ITEM) {
@@ -313,7 +315,9 @@ public class TinkerersSmithingLoader {
 				}
 				getSacrificePaths(base, unitCosts).forEach((result, sacrifice) -> sacrifice.getRight().keySet().forEach(additionUnits -> {
 					Collection<Item> additions = sacrifice.getRight().get(additionUnits);
-					RECIPES.add(new SacrificeUpgradeRecipe(base, Ingredient.ofItems(additions.toArray(Item[]::new)), additionUnits, result, sacrifice.getLeft()).toEntry());
+					if (result.getDefaultStack().getMaxDamage() > 0) {
+						RECIPES.add(new SacrificeUpgradeRecipe(base, Ingredient.ofItems(additions.toArray(Item[]::new)), additionUnits, result, sacrifice.getLeft()).toEntry());
+					}
 				}));
 			}
 			LOGGER.info("[Tinkerer's Smithing] Registered {} Tool Materials with {} items: [{}]", TOOL_MATERIALS.size(), TOOL_MATERIALS.values().stream().map(m -> m.items.size()).reduce(Integer::sum).orElse(0), TOOL_MATERIALS.entrySet().stream().map(e -> e.getKey().toString() + "(" + e.getValue().items.size() + ")").collect(Collectors.joining(", ")));

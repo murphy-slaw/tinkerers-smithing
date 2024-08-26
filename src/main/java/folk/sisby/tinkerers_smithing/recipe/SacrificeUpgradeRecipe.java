@@ -47,6 +47,7 @@ public class SacrificeUpgradeRecipe extends SmithingTransformRecipe implements S
 	}
 
 	public static int resultDamage(Item resultItem, int additionUnits, int resultUnits, int additionDamage, int additionMaxDamage) {
+		if (resultItem.getMaxDamage() == 0) return additionUnits * (additionDamage / (double) additionMaxDamage) >= resultUnits ? 0 : 1;
 		return (int) Math.ceil(resultItem.getDefaultStack().getMaxDamage() - ((additionMaxDamage - additionDamage) * ((double) additionUnits * resultItem.getDefaultStack().getMaxDamage()) / ((double) additionMaxDamage * resultUnits)));
 	}
 
@@ -55,6 +56,7 @@ public class SacrificeUpgradeRecipe extends SmithingTransformRecipe implements S
 		ItemStack output = super.craft(recipeInput, wrapperLookup);
 		ItemStack addition = recipeInput.addition();
 		output.setDamage(resultDamage(output.getItem(), additionUnits, resultUnits, addition.getDamage(), addition.getMaxDamage()));
+		if (output.getDamage() > output.getMaxDamage()) return ItemStack.EMPTY;
 		return output;
 	}
 
