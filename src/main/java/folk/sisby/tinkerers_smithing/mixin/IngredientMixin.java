@@ -1,5 +1,6 @@
 package folk.sisby.tinkerers_smithing.mixin;
 
+import com.mojang.serialization.JsonOps;
 import folk.sisby.tinkerers_smithing.TinkerersSmithing;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;
@@ -19,7 +20,7 @@ public class IngredientMixin {
 	private boolean isFootgun() {
 		Ingredient self = (Ingredient) (Object) this;
 		if (Arrays.stream(self.entries).anyMatch(e -> e instanceof Ingredient.TagEntry) && (Registries.ITEM.getEntryList(ItemTags.PLANKS).isEmpty() || Registries.ITEM.getEntryList(ItemTags.PLANKS).get().size() == 0)) {
-			TinkerersSmithing.LOGGER.error("[Tinkerer's Smithing] Cowardly refusing to access an unloaded tag ingredient: {}", self.toJson().toString(), new IllegalStateException("A tag ingredient was accessed before tags are loaded - This can break recipes! Report this to the mod in the trace below."));
+			TinkerersSmithing.LOGGER.error("[Tinkerer's Smithing] Cowardly refusing to access an unloaded tag ingredient: {}", Ingredient.ALLOW_EMPTY_CODEC.encodeStart(JsonOps.INSTANCE, self), new IllegalStateException("A tag ingredient was accessed before tags are loaded - This can break recipes! Report this to the mod in the trace below."));
 			return true;
 		}
 		return false;

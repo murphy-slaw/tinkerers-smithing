@@ -1,18 +1,23 @@
 package folk.sisby.tinkerers_smithing.recipe;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import folk.sisby.tinkerers_smithing.TinkerersSmithing;
-import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.ShapelessRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
+import net.minecraft.recipe.input.CraftingRecipeInput;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.collection.DefaultedList;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,11 +30,15 @@ public class ShapelessUpgradeRecipe extends ShapelessRecipe implements ServerRec
 	public final Item resultItem;
 
 	public ShapelessUpgradeRecipe(Item baseItem, Ingredient addition, int additionCount, Item resultItem) {
-		super(recipeId("shapeless", resultItem, baseItem), "", CraftingRecipeCategory.EQUIPMENT, resultItem.getDefaultStack(), assembleIngredients(baseItem, addition, additionCount));
+		super("", CraftingRecipeCategory.EQUIPMENT, resultItem.getDefaultStack(), assembleIngredients(baseItem, addition, additionCount));
 		this.baseItem = baseItem;
 		this.addition = addition;
 		this.additionCount = additionCount;
 		this.resultItem = resultItem;
+	}
+
+	public RecipeEntry<ShapelessUpgradeRecipe> toEntry() {
+		return new RecipeEntry<>(recipeId("shapeless", resultItem, baseItem), this);
 	}
 
 	private static DefaultedList<Ingredient> assembleIngredients(Item item, Ingredient addition, int additionCount) {
@@ -42,11 +51,11 @@ public class ShapelessUpgradeRecipe extends ShapelessRecipe implements ServerRec
 	}
 
 	@Override
-	public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager registryManager) {
-		ItemStack output = super.craft(inventory, registryManager);
-		for (ItemStack stack : inventory.getInputStacks()) {
+	public ItemStack craft(CraftingRecipeInput recipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
+		ItemStack output = super.craft(recipeInput, wrapperLookup);
+		for (ItemStack stack : recipeInput.getStacks()) {
 			if (stack.isOf(baseItem)) {
-				output.setNbt(stack.getOrCreateNbt().copy());
+				output.applyChanges(stack.getComponentChanges());
 			}
 		}
 		return output;
@@ -63,27 +72,29 @@ public class ShapelessUpgradeRecipe extends ShapelessRecipe implements ServerRec
 	}
 
 	public static class Serializer implements RecipeSerializer<ShapelessUpgradeRecipe> {
-		public ShapelessUpgradeRecipe read(Identifier id, JsonObject json) {
-			Item baseItem = JsonHelper.getItem(json, "base");
-			Ingredient addition = Ingredient.fromJson(JsonHelper.getObject(json, "addition"));
-			int additionCount = JsonHelper.getInt(json, "additionCount");
-			Item resultItem = JsonHelper.getItem(json, "result");
-			return new ShapelessUpgradeRecipe(baseItem, addition, additionCount, resultItem);
+		MapCodec<ShapelessUpgradeRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Registries.ITEM.getCodec().fieldOf("baseItem").forGetter(r -> r.baseItem),
+			Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("addition").forGetter(r -> r.addition),
+			Codec.INT.fieldOf("additionCount").forGetter(r -> r.additionCount),
+			Registries.ITEM.getCodec().fieldOf("resultItem").forGetter(r -> r.resultItem)
+		).apply(instance, ShapelessUpgradeRecipe::new));
+
+		PacketCodec<RegistryByteBuf, ShapelessUpgradeRecipe> PACKET_CODEC = PacketCodec.tuple(
+			PacketCodecs.registryValue(RegistryKeys.ITEM), r -> r.baseItem,
+			Ingredient.PACKET_CODEC, r -> r.addition,
+			PacketCodecs.VAR_INT, r -> r.additionCount,
+			PacketCodecs.registryValue(RegistryKeys.ITEM), r -> r.resultItem,
+			ShapelessUpgradeRecipe::new
+		);
+
+		@Override
+		public MapCodec<ShapelessUpgradeRecipe> codec() {
+			return CODEC;
 		}
 
-		public ShapelessUpgradeRecipe read(Identifier id, PacketByteBuf buf) {
-			Item baseItem = Item.byRawId(buf.readVarInt());
-			Ingredient addition = Ingredient.fromPacket(buf);
-			int additionCount = buf.readVarInt();
-			Item resultItem = Item.byRawId(buf.readVarInt());
-			return new ShapelessUpgradeRecipe(baseItem, addition, additionCount, resultItem);
-		}
-
-		public void write(PacketByteBuf buf, ShapelessUpgradeRecipe recipe) {
-			buf.writeVarInt(Item.getRawId(recipe.baseItem));
-			recipe.addition.write(buf);
-			buf.writeVarInt(recipe.additionCount);
-			buf.writeVarInt(Item.getRawId(recipe.resultItem));
+		@Override
+		public PacketCodec<RegistryByteBuf, ShapelessUpgradeRecipe> packetCodec() {
+			return PACKET_CODEC;
 		}
 	}
 }

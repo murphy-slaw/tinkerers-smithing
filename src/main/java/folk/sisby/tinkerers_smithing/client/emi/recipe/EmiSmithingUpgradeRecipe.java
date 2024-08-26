@@ -11,14 +11,15 @@ import folk.sisby.tinkerers_smithing.recipe.SmithingUpgradeRecipe;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.util.Identifier;
 
 public class EmiSmithingUpgradeRecipe extends EmiSmithingRecipe implements EmiRecipe {
 	public final Item baseItem;
 	public final int additionCount;
 	public final Item resultItem;
 
-	public EmiSmithingUpgradeRecipe(SmithingUpgradeRecipe recipe) {
-		super(EmiIngredient.of(Ingredient.empty()), EmiStack.of(recipe.baseItem), EmiIngredient.of(recipe.addition), EmiStack.of(recipe.result), recipe.getId());
+	public EmiSmithingUpgradeRecipe(Identifier id, SmithingUpgradeRecipe recipe) {
+		super(EmiIngredient.of(Ingredient.empty()), EmiStack.of(recipe.baseItem), EmiIngredient.of(recipe.addition), EmiStack.of(recipe.result), id);
 		this.baseItem = recipe.baseItem;
 		this.additionCount = recipe.additionCount;
 		this.resultItem = recipe.resultItem;

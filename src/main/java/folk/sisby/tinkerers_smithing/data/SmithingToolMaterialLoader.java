@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class SmithingToolMaterialLoader extends SmithingMaterialLoader {
 	public static final SmithingToolMaterialLoader INSTANCE = new SmithingToolMaterialLoader(new Gson());
-	public static final Identifier ID = new Identifier(TinkerersSmithing.ID, "smithing_tool_material_loader");
+	public static final Identifier ID = Identifier.of(TinkerersSmithing.ID, "smithing_tool_material_loader");
 
 	public SmithingToolMaterialLoader(Gson gson) {
 		super(gson, "smithing_tool_materials", TinkerersSmithingMaterial.EQUIPMENT_TYPE.TOOL);
@@ -22,7 +22,7 @@ public class SmithingToolMaterialLoader extends SmithingMaterialLoader {
 
 	@Override
 	public Ingredient getDefaultRepairIngredient(Item item) {
-		if (item.isDamageable() && item instanceof ToolItem ti) {
+		if (item.getDefaultStack().isDamageable() && item instanceof ToolItem ti) {
 			ToolMaterial material = ti.getMaterial();
 			if (material != null) {
 				Ingredient repairIngredient = material.getRepairIngredient();

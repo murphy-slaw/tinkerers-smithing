@@ -3,7 +3,6 @@ package folk.sisby.tinkerers_smithing.data;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import folk.sisby.tinkerers_smithing.TinkerersSmithing;
 import folk.sisby.tinkerers_smithing.TinkerersSmithingLoader;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class SmithingTypeLoader extends MultiJsonDataLoader {
 	public static final SmithingTypeLoader INSTANCE = new SmithingTypeLoader(new Gson());
-	public static final Identifier ID = new Identifier(TinkerersSmithing.ID, "smithing_type_loader");
+	public static final Identifier ID = Identifier.of(TinkerersSmithing.ID, "smithing_type_loader");
 	public static final TagGroupLoader<Item> ITEM_TAG_LOADER = new TagGroupLoader<>(Registries.ITEM::getOrEmpty, "tags/items");
 	public static final String AVOIDANCE_PREFIX = "tinkerers_smithing_types/";
 
@@ -37,7 +36,7 @@ public class SmithingTypeLoader extends MultiJsonDataLoader {
 	}
 
 	public static void addToTag(Map<Identifier, Collection<Item>> tags, String path, Item item) {
-		Identifier id = new Identifier(path); // minecraft for slot stuff
+		Identifier id = Identifier.of(path); // minecraft for slot stuff
 		HashSet<Item> mutable = new HashSet<>(tags.computeIfAbsent(id, k -> new HashSet<>()));
 		mutable.add(item);
 		tags.put(id, ImmutableList.copyOf(mutable));
@@ -54,10 +53,10 @@ public class SmithingTypeLoader extends MultiJsonDataLoader {
 		TinkerersSmithingLoader.INSTANCE.SMITHING_TYPES.clear();
 		Map<Identifier, List<TagGroupLoader.TrackedEntry>> typeTags = new HashMap<>();
 		prepared.forEach((id, jsons) -> {
-			Identifier collisionAvoidingID = new Identifier(id.getNamespace(), AVOIDANCE_PREFIX + id.getPath());
+			Identifier collisionAvoidingID = Identifier.of(id.getNamespace(), AVOIDANCE_PREFIX + id.getPath());
 			jsons.forEach(jsonEntry -> {
 				List<TagGroupLoader.TrackedEntry> list = typeTags.computeIfAbsent(collisionAvoidingID, k -> new ArrayList<>());
-				TagFile tagFile = TagFile.CODEC.parse(new Dynamic<>(JsonOps.INSTANCE, jsonEntry.getLeft())).getOrThrow(false, TinkerersSmithing.LOGGER::error);
+				TagFile tagFile = TagFile.CODEC.decode(JsonOps.INSTANCE, jsonEntry.getLeft()).getOrThrow().getFirst();
 				if (tagFile.replace()) {
 					list.clear();
 				}
@@ -72,7 +71,7 @@ public class SmithingTypeLoader extends MultiJsonDataLoader {
 		Map<Identifier, Collection<Item>> tags = ITEM_TAG_LOADER.buildGroup(allTags);
 		tags.entrySet().removeIf(e -> !typeTags.containsKey(e.getKey()));
 		// Strip collision avoiding ID
-		tags = tags.entrySet().stream().collect(Collectors.toMap(e -> new Identifier(e.getKey().getNamespace(), StringUtils.removeStart(e.getKey().getPath(), AVOIDANCE_PREFIX)), Map.Entry::getValue));
+		tags = tags.entrySet().stream().collect(Collectors.toMap(e -> Identifier.of(e.getKey().getNamespace(), StringUtils.removeStart(e.getKey().getPath(), AVOIDANCE_PREFIX)), Map.Entry::getValue));
 		// Manually jam in stuff by equipment slot, false positives should wash out by having no material.
 		for (Item item : Registries.ITEM) {
 			if (item instanceof ArmorItem ai) {

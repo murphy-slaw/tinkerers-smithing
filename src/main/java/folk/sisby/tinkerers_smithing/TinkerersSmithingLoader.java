@@ -14,8 +14,10 @@ import net.minecraft.item.ToolItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 
@@ -41,10 +43,10 @@ public class TinkerersSmithingLoader {
 	public final Map<Identifier, TinkerersSmithingMaterial> ARMOR_MATERIALS = new HashMap<>();
 	public final Map<Item, SmithingUnitCostManager.UnitCostOverride> COST_OVERRIDES = new HashMap<>();
 
-	public final List<Recipe<?>> RECIPES = new ArrayList<>();
+	public final List<RecipeEntry<?>> RECIPES = new ArrayList<>();
 
 	public static Identifier recipeId(String recipeType, String... names) {
-		return new Identifier(ID, recipeType + "/" + String.join("/", names));
+		return Identifier.of(ID, recipeType + "/" + String.join("/", names));
 	}
 
 	public static Identifier recipeId(String recipeType, Identifier... ids) {
@@ -56,14 +58,14 @@ public class TinkerersSmithingLoader {
 	}
 
 	public static Identifier appendId(Identifier id, String name) {
-		return new Identifier(id.toString() + "/" + name);
+		return Identifier.of(id.toString() + "/" + name);
 	}
 
 	public static Identifier repairRecipeId(Item baseItem, Ingredient ingredient) {
 		if (ingredient.entries.length == 0) {
 			throw new IllegalArgumentException("Ingredients for Tinkerer's Smithing recipes can't be empty! When repairing item %s".formatted(Registries.ITEM.getId(baseItem)));
 		}
-		Identifier ingredientId = ingredient.entries[0] instanceof Ingredient.StackEntry se ? Registries.ITEM.getId(se.stack.getItem()) : ingredient.entries[0] instanceof Ingredient.TagEntry te ? te.tag.id() : new Identifier("ERROR");
+		Identifier ingredientId = ingredient.entries[0] instanceof Ingredient.StackEntry se ? Registries.ITEM.getId(se.stack.getItem()) : ingredient.entries[0] instanceof Ingredient.TagEntry te ? te.tag.id() : Identifier.of("ERROR");
 		return recipeId("repair", Registries.ITEM.getId(baseItem), ingredientId);
 	}
 
@@ -78,7 +80,7 @@ public class TinkerersSmithingLoader {
 	public class LoaderRun {
 		public final List<Identifier> WARN_NO_RECIPE = new ArrayList<>();
 		public final List<Identifier> WARN_NO_MATERIALS = new ArrayList<>();
-		public final Map<Identifier, ArmorMaterial> WARN_DEFAULT_MATERIAL_ARMOR = new HashMap<>();
+		public final Map<Identifier, RegistryEntry<ArmorMaterial>> WARN_DEFAULT_MATERIAL_ARMOR = new HashMap<>();
 		public final Map<Identifier, ToolMaterial> WARN_DEFAULT_MATERIAL_TOOL = new HashMap<>();
 		public int INFO_ADDED_COSTS = 0;
 		public int INFO_ADDED_COST_ITEMS = 0;
@@ -94,7 +96,7 @@ public class TinkerersSmithingLoader {
 			return outList;
 		}
 
-		public List<Ingredient> getMaterialRepairIngredients(BiConsumer<Identifier, ArmorMaterial> armorDefaults, BiConsumer<Identifier, ToolMaterial> toolDefaults, Item item) {
+		public List<Ingredient> getMaterialRepairIngredients(BiConsumer<Identifier, RegistryEntry<ArmorMaterial>> armorDefaults, BiConsumer<Identifier, ToolMaterial> toolDefaults, Item item) {
 			List<Ingredient> outList = new ArrayList<>();
 			boolean noneMatch = true;
 
@@ -113,16 +115,16 @@ public class TinkerersSmithingLoader {
 			}
 
 			if (outList.isEmpty()) {
-				if (item.isDamageable() && item instanceof ArmorItem ai) {
-					ArmorMaterial material = ai.getMaterial();
+				if (item.getDefaultStack().isDamageable() && item instanceof ArmorItem ai) {
+					ArmorMaterial material = ai.getMaterial().value();
 					if (material != null) {
-						Ingredient repairIngredient = material.getRepairIngredient();
+						Ingredient repairIngredient = material.repairIngredient().get();
 						if (repairIngredient != null && !repairIngredient.isEmpty()) {
 							outList.add(repairIngredient);
 						}
 					}
 				}
-				if (item.isDamageable() && item instanceof ToolItem ti) {
+				if (item.getDefaultStack().isDamageable() && item instanceof ToolItem ti) {
 					ToolMaterial material = ti.getMaterial();
 					if (material != null) {
 						Ingredient repairIngredient = material.getRepairIngredient();
@@ -178,7 +180,7 @@ public class TinkerersSmithingLoader {
 			SmithingUnitCostManager.UnitCostOverride override = COST_OVERRIDES.get(item);
 			List<Ingredient> repairIngredients = getMaterialRepairIngredients(WARN_DEFAULT_MATERIAL_ARMOR::put, WARN_DEFAULT_MATERIAL_TOOL::put, item);
 
-			if ((override == null || !override.replace()) && repairIngredients.isEmpty() && item.isDamageable()) {
+			if ((override == null || !override.replace()) && repairIngredients.isEmpty() && item.getDefaultStack().isDamageable()) {
 				WARN_NO_MATERIALS.add(itemId);
 			}
 
@@ -190,7 +192,7 @@ public class TinkerersSmithingLoader {
 				for (Identifier recipeId : recipeIds) {
 					Recipe<?> recipe = recipes.get(recipeId);
 					if (recipe != null) {
-						if (recipe.getOutput(DynamicRegistryManager.of(Registries.REGISTRIES)).isOf(item)) {
+						if (recipe.getResult(DynamicRegistryManager.of(Registries.REGISTRIES)).isOf(item)) {
 							for (Ingredient repairIngredient : repairIngredients) {
 								int unitCost = Math.toIntExact(recipe.getIngredients().stream()
 									.filter(craftingIngredient -> TinkerersSmithing.CONFIG.matchesOrEquivalent(repairIngredient, craftingIngredient))
@@ -299,19 +301,19 @@ public class TinkerersSmithingLoader {
 			Map<Item, Map<Ingredient, Integer>> unitCosts = new HashMap<>();
 			for (Item item : Registries.ITEM) {
 				Map<Ingredient, Integer> unitCost = getUnitCosts(item, recipes);
-				unitCost.forEach((unit, count) -> RECIPES.add(new ShapelessRepairRecipe(item, unit, count)));
+				unitCost.forEach((unit, count) -> RECIPES.add(new ShapelessRepairRecipe(item, unit, count).toEntry()));
 				unitCosts.put(item, unitCost);
 			}
 			for (Item base : Registries.ITEM) {
 				for (Item result : getUpgradePaths(base)) {
 					unitCosts.get(result).forEach((addition, additionCount) -> {
-						RECIPES.add(new SmithingUpgradeRecipe(base, addition, additionCount, result));
-						RECIPES.add(new ShapelessUpgradeRecipe(base, addition, additionCount, result));
+						RECIPES.add(new SmithingUpgradeRecipe(base, addition, additionCount, result).toEntry());
+						RECIPES.add(new ShapelessUpgradeRecipe(base, addition, additionCount, result).toEntry());
 					});
 				}
 				getSacrificePaths(base, unitCosts).forEach((result, sacrifice) -> sacrifice.getRight().keySet().forEach(additionUnits -> {
 					Collection<Item> additions = sacrifice.getRight().get(additionUnits);
-					RECIPES.add(new SacrificeUpgradeRecipe(base, Ingredient.ofItems(additions.toArray(Item[]::new)), additionUnits, result, sacrifice.getLeft()));
+					RECIPES.add(new SacrificeUpgradeRecipe(base, Ingredient.ofItems(additions.toArray(Item[]::new)), additionUnits, result, sacrifice.getLeft()).toEntry());
 				}));
 			}
 			LOGGER.info("[Tinkerer's Smithing] Registered {} Tool Materials with {} items: [{}]", TOOL_MATERIALS.size(), TOOL_MATERIALS.values().stream().map(m -> m.items.size()).reduce(Integer::sum).orElse(0), TOOL_MATERIALS.entrySet().stream().map(e -> e.getKey().toString() + "(" + e.getValue().items.size() + ")").collect(Collectors.joining(", ")));
@@ -321,10 +323,10 @@ public class TinkerersSmithingLoader {
 			LOGGER.info("[Tinkerer's Smithing] Applied {} Upgrade Paths to {} items", INFO_ADDED_UPGRADES, INFO_ADDED_UPGRADE_ITEMS);
 			LOGGER.info("[Tinkerer's Smithing] Applied {} Sacrifice Paths to {} items", INFO_ADDED_SACRIFICES, INFO_ADDED_SACRIFICE_ITEMS);
 			if (!WARN_DEFAULT_MATERIAL_ARMOR.isEmpty()) {
-				Set<ArmorMaterial> armorMats = new HashSet<>(WARN_DEFAULT_MATERIAL_ARMOR.values());
+				Set<RegistryEntry<ArmorMaterial>> armorMats = new HashSet<>(WARN_DEFAULT_MATERIAL_ARMOR.values());
 				LOGGER.warn("[Tinkerer's Smithing] Found {} unregistered armor materials with {} armor items: [{}] items: [{}]", armorMats.size(), WARN_DEFAULT_MATERIAL_ARMOR.size(), armorMats.stream().map(Object::toString).collect(Collectors.joining(", ")), WARN_DEFAULT_MATERIAL_ARMOR.entrySet().stream()
 					.collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList()))).entrySet().stream() // Invert Map
-					.map(e -> "%s[%s]".formatted(e.getKey().getName(), e.getValue().stream().map(Identifier::toString).collect(Collectors.joining(", ")))).collect(Collectors.joining(", "))); // Stringify
+					.map(e -> "%s[%s]".formatted(e.getKey().getIdAsString(), e.getValue().stream().map(Identifier::toString).collect(Collectors.joining(", ")))).collect(Collectors.joining(", "))); // Stringify
 			}
 			if (!WARN_DEFAULT_MATERIAL_TOOL.isEmpty()) {
 				Set<ToolMaterial> toolMats = new HashSet<>(WARN_DEFAULT_MATERIAL_TOOL.values());

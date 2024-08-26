@@ -21,12 +21,13 @@ import folk.sisby.tinkerers_smithing.recipe.SacrificeUpgradeRecipe;
 import folk.sisby.tinkerers_smithing.recipe.ShapelessRepairRecipe;
 import folk.sisby.tinkerers_smithing.recipe.ShapelessUpgradeRecipe;
 import folk.sisby.tinkerers_smithing.recipe.SmithingUpgradeRecipe;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.SmithingRecipe;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -47,30 +48,31 @@ public class TinkerersSmithingPlugin implements EmiPlugin {
 		replacedIdPrefixes.clear();
 		addedRecipes.clear();
 
-		registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(ShapelessUpgradeRecipe.class::isInstance).map(r -> new EmiShapelessUpgradeRecipe((ShapelessUpgradeRecipe) r)).forEach(this::replaceRecipe);
-		registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(ShapelessRepairRecipe.class::isInstance).map(r -> new EmiShapelessRepairRecipe((ShapelessRepairRecipe) r)).forEach(this::replaceRecipe);
-		registry.getRecipeManager().listAllOfType(RecipeType.SMITHING).stream().filter(SmithingUpgradeRecipe.class::isInstance).map(r -> new EmiSmithingUpgradeRecipe((SmithingUpgradeRecipe) r)).forEach(this::replaceRecipe);
-		registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(recipe -> recipe instanceof ShapelessRepairRecipe).forEach(r -> replaceAnvilRecipe((ShapelessRepairRecipe) r));
+		registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(e -> e.value() instanceof ShapelessUpgradeRecipe).map(r -> new EmiShapelessUpgradeRecipe((ShapelessUpgradeRecipe) r.value())).forEach(this::replaceRecipe);
+		registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(e -> e.value() instanceof ShapelessRepairRecipe).map(r -> new EmiShapelessRepairRecipe((ShapelessRepairRecipe) r.value())).forEach(this::replaceRecipe);
+		registry.getRecipeManager().listAllOfType(RecipeType.SMITHING).stream().filter(e -> e.value() instanceof SmithingUpgradeRecipe).map(r -> new EmiSmithingUpgradeRecipe(r.id(), (SmithingUpgradeRecipe) r.value())).forEach(this::replaceRecipe);
+		registry.getRecipeManager().listAllOfType(RecipeType.CRAFTING).stream().filter(e -> e.value() instanceof ShapelessRepairRecipe).forEach(r -> replaceAnvilRecipe(r.id(), (ShapelessRepairRecipe) r.value()));
 		Multimap<ItemPair, SacrificeUpgradeRecipe> cappedRecipes = HashMultimap.create();
-		for (SmithingRecipe recipe : registry.getRecipeManager().listAllOfType(RecipeType.SMITHING)) {
-			if (recipe instanceof SacrificeUpgradeRecipe sur) {
+		for (RecipeEntry<SmithingRecipe> recipe : registry.getRecipeManager().listAllOfType(RecipeType.SMITHING)) {
+			if (recipe.value() instanceof SacrificeUpgradeRecipe sur) {
 				if (sur.additionUnits >= sur.resultUnits) {
-					replacedIds.add(sur.getId());
+					replacedIds.add(recipe.id());
 					cappedRecipes.put(new ItemPair(sur.baseItem, sur.resultItem), sur);
 					continue;
 				}
-				replaceRecipe(new EmiSacrificeUpgradeRecipe(sur));
+				replaceRecipe(new EmiSacrificeUpgradeRecipe(recipe.id(), sur));
 			}
 		}
 		for (ItemPair key : cappedRecipes.keySet()) {
 			SacrificeUpgradeRecipe sample = cappedRecipes.get(key).stream().findFirst().get();
-			addedRecipes.add(new EmiSacrificeUpgradeRecipe(new SacrificeUpgradeRecipe(
+			RecipeEntry<SacrificeUpgradeRecipe> recipe = new SacrificeUpgradeRecipe(
 				sample.baseItem,
 				cappedRecipes.get(key).stream().map(s -> s.addition).reduce(Ingredient.empty(), (i, i2) -> Ingredient.ofEntries(Arrays.stream(ArrayUtils.addAll(i.entries, i2.entries)))),
 				sample.resultUnits,
 				sample.resultItem,
 				sample.resultUnits
-			)));
+			).toEntry();
+			addedRecipes.add(new EmiSacrificeUpgradeRecipe(recipe.id(), recipe.value()));
 		}
 
 		registry.removeRecipes(r -> replacedIdPrefixes.stream().anyMatch(id -> r.getId() != null && r.getId().toString().startsWith(id.toString())));
@@ -78,7 +80,7 @@ public class TinkerersSmithingPlugin implements EmiPlugin {
 		addedRecipes.forEach(registry::addRecipe);
 
 		for (Item item : Registries.ITEM) {
-			if (Enchantments.VANISHING_CURSE.isAcceptableItem(item.getDefaultStack())) {
+			if (item.getDefaultStack().isIn(ItemTags.VANISHING_ENCHANTABLE)) {
 				registry.addRecipe(new EmiAnvilDeworkRecipe(EmiStack.of(item), EmiIngredient.of(TinkerersSmithing.DEWORK_INGREDIENTS), TinkerersSmithingLoader.recipeId("dework", item)));
 			}
 		}
@@ -89,9 +91,9 @@ public class TinkerersSmithingPlugin implements EmiPlugin {
 		addedRecipes.add(recipe);
 	}
 
-	private void replaceAnvilRecipe(ShapelessRepairRecipe recipe) {
-		replacedIdPrefixes.add(new Identifier("emi", "/" + "anvil/repairing/material" + "/" + Registries.ITEM.getId(recipe.baseItem).getNamespace() + "/" + Registries.ITEM.getId(recipe.baseItem).getPath()));
-		addedRecipes.add(new EmiAnvilRecipe(EmiStack.of(recipe.baseItem), EmiIngredient.of(recipe.addition), new Identifier(recipe.getId().toString().replace(":repair/", ":anvil/"))));
+	private void replaceAnvilRecipe(Identifier id, ShapelessRepairRecipe recipe) {
+		replacedIdPrefixes.add(Identifier.of("emi", "/" + "anvil/repairing/material" + "/" + Registries.ITEM.getId(recipe.baseItem).getNamespace() + "/" + Registries.ITEM.getId(recipe.baseItem).getPath()));
+		addedRecipes.add(new EmiAnvilRecipe(EmiStack.of(recipe.baseItem), EmiIngredient.of(recipe.addition), Identifier.of(id.toString().replace(":repair/", ":anvil/"))));
 	}
 
 	record ItemPair(Item i1, Item i2) {

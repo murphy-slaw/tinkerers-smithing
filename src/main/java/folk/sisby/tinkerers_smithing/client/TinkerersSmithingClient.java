@@ -1,6 +1,6 @@
 package folk.sisby.tinkerers_smithing.client;
 
-import folk.sisby.tinkerers_smithing.TinkerersSmithing;
+import folk.sisby.tinkerers_smithing.packet.S2CPing;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.slf4j.Logger;
@@ -11,7 +11,6 @@ public class TinkerersSmithingClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		ClientPlayNetworking.registerGlobalReceiver(TinkerersSmithing.S2C_PING, (client, handler, buf, sender) -> {
-		});
+		ClientPlayNetworking.registerGlobalReceiver(S2CPing.ID, (packet, context) -> {});
 	}
 }

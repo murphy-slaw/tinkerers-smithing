@@ -1,9 +1,12 @@
 package folk.sisby.tinkerers_smithing.mixin;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.llamalad7.mixinextras.injector.ModifyReceiver;
 import folk.sisby.tinkerers_smithing.TinkerersSmithing;
 import folk.sisby.tinkerers_smithing.TinkerersSmithingLoader;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.util.Identifier;
@@ -12,28 +15,31 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin {
-	@Unique
-	private ImmutableMap.Builder<Identifier, Recipe<?>> builder = null;
+	@Unique private ImmutableMap.Builder<Identifier, RecipeEntry<?>> builder = null;
 
 	@ModifyVariable(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;", ordinal = 0), index = 5)
-	private ImmutableMap.Builder<Identifier, Recipe<?>> AddRuntimeRecipes(ImmutableMap.Builder<Identifier, Recipe<?>> builder) {
+	private ImmutableMap.Builder<Identifier, RecipeEntry<?>> AddRuntimeRecipes(ImmutableMap.Builder<Identifier, RecipeEntry<?>> builder) {
 		this.builder = builder;
 		return builder;
 	}
 
-	@ModifyVariable(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;", ordinal = 1), ordinal = 1)
-	private Map<RecipeType<?>, ImmutableMap.Builder<Identifier, Recipe<?>>> AddRuntimeRecipes(Map<RecipeType<?>, ImmutableMap.Builder<Identifier, Recipe<?>>> recipes) {
-		Map<Identifier, Recipe<?>> dataRecipes = builder.build();
+	@ModifyReceiver(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableMultimap$Builder;build()Lcom/google/common/collect/ImmutableMultimap;"))
+	private ImmutableMultimap.Builder<RecipeType<?>, RecipeEntry<?>> AddRuntimeRecipes(ImmutableMultimap.Builder<RecipeType<?>, RecipeEntry<?>> recipes) {
+		Map<Identifier, Recipe<?>> dataRecipes = new HashMap<>();
+		for (RecipeEntry<?> entry : builder.build().values()) {
+			dataRecipes.put(entry.id(), entry.value());
+		}
 		TinkerersSmithing.generateSmithingData(dataRecipes);
 		int manualRecipes = 0;
-		for (Recipe<?> recipe : TinkerersSmithingLoader.INSTANCE.RECIPES) {
-			if (!dataRecipes.containsKey(recipe.getId())) {
-				recipes.computeIfAbsent(recipe.getType(), recipeType -> ImmutableMap.builder()).put(recipe.getId(), recipe);
-				builder.put(recipe.getId(), recipe);
+		for (RecipeEntry<?> entry : TinkerersSmithingLoader.INSTANCE.RECIPES) {
+			if (!dataRecipes.containsKey(entry.id())) {
+				recipes.put(entry.value().getType(), entry);
+				builder.put(entry.id(), entry);
 			} else {
 				manualRecipes++;
 			}

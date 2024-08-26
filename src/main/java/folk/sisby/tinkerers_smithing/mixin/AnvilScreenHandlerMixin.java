@@ -3,12 +3,15 @@ package folk.sisby.tinkerers_smithing.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import folk.sisby.tinkerers_smithing.TinkerersSmithing;
 import folk.sisby.tinkerers_smithing.recipe.ShapelessRepairRecipe;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.CraftingRecipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.screen.AnvilScreenHandler;
 import net.minecraft.screen.ForgingScreenHandler;
@@ -22,10 +25,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Map;
 
 @Mixin(AnvilScreenHandler.class)
 public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
@@ -46,8 +48,8 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 
 	@ModifyExpressionValue(method = "updateResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/Item;canRepair(Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;)Z"))
 	private boolean overrideRepairMaterials(boolean original) {
-		for (CraftingRecipe recipe : this.player.getWorld().getRecipeManager().listAllOfType(RecipeType.CRAFTING)) {
-			if (recipe instanceof ShapelessRepairRecipe srr && this.getSlot(AnvilScreenHandler.INPUT_1_ID).getStack().isOf(srr.baseItem) && srr.addition.test(this.getSlot(AnvilScreenHandler.INPUT_2_ID).getStack())) {
+		for (RecipeEntry<CraftingRecipe> recipe : this.player.getWorld().getRecipeManager().listAllOfType(RecipeType.CRAFTING)) {
+			if (recipe.value() instanceof ShapelessRepairRecipe srr && this.getSlot(AnvilScreenHandler.INPUT_1_ID).getStack().isOf(srr.baseItem) && srr.addition.test(this.getSlot(AnvilScreenHandler.INPUT_2_ID).getStack())) {
 				return true;
 			}
 		}
@@ -84,13 +86,13 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 	private void applyDeworkMaterial(CallbackInfo ci) {
 		ItemStack base = this.getSlot(AnvilScreenHandler.INPUT_1_ID).getStack();
 		ItemStack ingredient = this.getSlot(AnvilScreenHandler.INPUT_2_ID).getStack();
-		if (ingredient.isIn(TinkerersSmithing.DEWORK_INGREDIENTS) && base.getRepairCost() > 0) {
+		if (ingredient.isIn(TinkerersSmithing.DEWORK_INGREDIENTS) && base.getOrDefault(DataComponentTypes.REPAIR_COST, 0) > 0) {
 			ItemStack result = base.copy();
 			this.repairItemUsage = 0;
 			do {
-				result.setRepairCost(((result.getRepairCost() + 1) / 2) - 1);
+				result.set(DataComponentTypes.REPAIR_COST, ((result.getOrDefault(DataComponentTypes.REPAIR_COST, 0) + 1) / 2) - 1);
 				this.repairItemUsage++;
-			} while (result.getRepairCost() > 0 && this.repairItemUsage < ingredient.getCount());
+			} while (result.getOrDefault(DataComponentTypes.REPAIR_COST, 0) > 0 && this.repairItemUsage < ingredient.getCount());
 			this.getSlot(AnvilScreenHandler.OUTPUT_ID).setStack(result);
 			this.levelCost.set(0);
 			this.sendContentUpdates();
@@ -99,37 +101,31 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 	}
 
 	@Unique
-	private int getSRCost(Map<Enchantment, Integer> base, Map<Enchantment, Integer> ingredient) {
-		return ingredient.entrySet().stream().map(entry -> {
-			Enchantment enchantment = entry.getKey();
-			int level = entry.getValue();
-			int baseLevel = base.getOrDefault(enchantment, 0);
+	private int getSRCost(ItemEnchantmentsComponent base, ItemEnchantmentsComponent ingredient) {
+		return ingredient.getEnchantmentEntries().stream().map(entry -> {
+			Enchantment enchantment = entry.getKey().value();
+			int level = entry.getIntValue();
+			int baseLevel = base.getLevel(entry.getKey());
 			int resultLevel = baseLevel == level ? level + 1 : Math.max(level, baseLevel);
-			int rarityCost = switch (enchantment.getRarity()) {
-				case COMMON -> 1;
-				case UNCOMMON -> 2;
-				case RARE -> 4;
-				case VERY_RARE -> 8;
-			};
+			int rarityCost = enchantment.getAnvilCost();
 			return rarityCost * resultLevel;
 		}).reduce(0, Integer::sum);
 	}
 
 	@Unique
-	private boolean doSwapEnchantments(Map<Enchantment, Integer> base, Map<Enchantment, Integer> ingredient) {
+	private boolean doSwapEnchantments(ItemEnchantmentsComponent base, ItemEnchantmentsComponent ingredient) {
 		return !(this.getSlot(AnvilScreenHandler.INPUT_2_ID).getStack().isOf(Items.ENCHANTED_BOOK)) && getSRCost(base, ingredient) > getSRCost(ingredient, base);
 	}
 
-	@ModifyVariable(method = "updateResult", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/enchantment/EnchantmentHelper;get(Lnet/minecraft/item/ItemStack;)Ljava/util/Map;", ordinal = 1), ordinal = 0)
-	private Map<Enchantment, Integer> orderlessCombineSwapBaseTable(Map<Enchantment, Integer> base) {
-		Map<Enchantment, Integer> ingredient = EnchantmentHelper.get(this.getSlot(AnvilScreenHandler.INPUT_2_ID).getStack());
+	@ModifyArg(method = "updateResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/component/type/ItemEnchantmentsComponent$Builder;<init>(Lnet/minecraft/component/type/ItemEnchantmentsComponent;)V", ordinal = 0))
+	private ItemEnchantmentsComponent orderlessCombineSwapBaseTable(ItemEnchantmentsComponent base) {
+		ItemEnchantmentsComponent ingredient = EnchantmentHelper.getEnchantments(this.getSlot(AnvilScreenHandler.INPUT_2_ID).getStack());
 		return doSwapEnchantments(base, ingredient) ? ingredient : base;
 	}
 
-	@SuppressWarnings("InvalidInjectorMethodSignature")
-	@ModifyVariable(method = "updateResult", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/enchantment/EnchantmentHelper;get(Lnet/minecraft/item/ItemStack;)Ljava/util/Map;", ordinal = 1), ordinal = 1)
-	private Map<Enchantment, Integer> orderlessCombineSwapIngredientTable(Map<Enchantment, Integer> ingredient) {
-		Map<Enchantment, Integer> base = EnchantmentHelper.get(this.getSlot(AnvilScreenHandler.INPUT_1_ID).getStack());
+	@ModifyExpressionValue(method = "updateResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/enchantment/EnchantmentHelper;getEnchantments(Lnet/minecraft/item/ItemStack;)Lnet/minecraft/component/type/ItemEnchantmentsComponent;", ordinal = 1))
+	private ItemEnchantmentsComponent orderlessCombineSwapIngredientTable(ItemEnchantmentsComponent ingredient) {
+		ItemEnchantmentsComponent base = EnchantmentHelper.getEnchantments(this.getSlot(AnvilScreenHandler.INPUT_1_ID).getStack());
 		return doSwapEnchantments(base, ingredient) ? base : ingredient;
 	}
 }

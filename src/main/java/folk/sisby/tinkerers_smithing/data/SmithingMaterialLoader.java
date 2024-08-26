@@ -3,6 +3,7 @@ package folk.sisby.tinkerers_smithing.data;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import folk.sisby.tinkerers_smithing.TinkerersSmithing;
 import folk.sisby.tinkerers_smithing.TinkerersSmithingMaterial;
 import net.minecraft.item.Item;
@@ -86,22 +87,22 @@ public abstract class SmithingMaterialLoader extends MultiJsonDataLoader {
 					});
 				}
 				if (baseObject.has(KEY_REPAIR_MATERIALS)) {
-					baseObject.get(KEY_REPAIR_MATERIALS).getAsJsonArray().forEach(jsonIngredient -> repairMaterials.add(Ingredient.fromJson(jsonIngredient)));
+					baseObject.get(KEY_REPAIR_MATERIALS).getAsJsonArray().forEach(jsonIngredient -> repairMaterials.add(Ingredient.ALLOW_EMPTY_CODEC.decode(JsonOps.INSTANCE, jsonIngredient).getOrThrow().getFirst()));
 				}
 				if (baseObject.has(KEY_ADD_ITEM)) {
-					baseObject.get(KEY_ADD_ITEM).getAsJsonArray().forEach(jsonItemId -> addOrWarnItem(items, new Identifier(jsonItemId.getAsString()), id));
+					baseObject.get(KEY_ADD_ITEM).getAsJsonArray().forEach(jsonItemId -> addOrWarnItem(items, Identifier.of(jsonItemId.getAsString()), id));
 				}
 				if (baseObject.has(KEY_REMOVE_ITEM)) {
-					baseObject.get(KEY_REMOVE_ITEM).getAsJsonArray().forEach(jsonItemId -> removeOrWarnItem(items, new Identifier(jsonItemId.getAsString()), id));
+					baseObject.get(KEY_REMOVE_ITEM).getAsJsonArray().forEach(jsonItemId -> removeOrWarnItem(items, Identifier.of(jsonItemId.getAsString()), id));
 				}
 				if (baseObject.has(KEY_UPGRADES_FROM)) {
-					baseObject.get(KEY_UPGRADES_FROM).getAsJsonArray().forEach(jsonMaterialId -> upgradeFromMap.computeIfAbsent(new Identifier(jsonMaterialId.getAsString()), k -> new ArrayList<>()).add(id));
+					baseObject.get(KEY_UPGRADES_FROM).getAsJsonArray().forEach(jsonMaterialId -> upgradeFromMap.computeIfAbsent(Identifier.of(jsonMaterialId.getAsString()), k -> new ArrayList<>()).add(id));
 				}
 				if (baseObject.has(KEY_UPGRADES_TO)) {
-					baseObject.get(KEY_UPGRADES_TO).getAsJsonArray().forEach(jsonMaterialId -> upgradesTo.add(new Identifier(jsonMaterialId.getAsString())));
+					baseObject.get(KEY_UPGRADES_TO).getAsJsonArray().forEach(jsonMaterialId -> upgradesTo.add(Identifier.of(jsonMaterialId.getAsString())));
 				}
 				if (baseObject.has(KEY_SACRIFICE_VIA)) {
-					sacrificesVia = new Identifier(baseObject.get(KEY_SACRIFICE_VIA).getAsString());
+					sacrificesVia = Identifier.of(baseObject.get(KEY_SACRIFICE_VIA).getAsString());
 				}
 			}
 

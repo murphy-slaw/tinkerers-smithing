@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class SmithingArmorMaterialLoader extends SmithingMaterialLoader {
 	public static final SmithingArmorMaterialLoader INSTANCE = new SmithingArmorMaterialLoader(new Gson());
-	public static final Identifier ID = new Identifier(TinkerersSmithing.ID, "smithing_armor_material_loader");
+	public static final Identifier ID = Identifier.of(TinkerersSmithing.ID, "smithing_armor_material_loader");
 
 	public SmithingArmorMaterialLoader(Gson gson) {
 		super(gson, "smithing_armor_materials", TinkerersSmithingMaterial.EQUIPMENT_TYPE.ARMOR);
@@ -22,10 +22,10 @@ public class SmithingArmorMaterialLoader extends SmithingMaterialLoader {
 
 	@Override
 	public Ingredient getDefaultRepairIngredient(Item item) {
-		if (item.isDamageable() && item instanceof ArmorItem ai) {
-			ArmorMaterial material = ai.getMaterial();
+		if (item.getDefaultStack().isDamageable() && item instanceof ArmorItem ai) {
+			ArmorMaterial material = ai.getMaterial().value();
 			if (material != null) {
-				Ingredient repairIngredient = material.getRepairIngredient();
+				Ingredient repairIngredient = material.repairIngredient().get();
 				if (repairIngredient != null && !repairIngredient.isEmpty()) {
 					return repairIngredient;
 				}

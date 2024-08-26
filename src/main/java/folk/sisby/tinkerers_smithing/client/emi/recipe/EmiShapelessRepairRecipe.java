@@ -56,7 +56,7 @@ public class EmiShapelessRepairRecipe extends EmiShapelessRecipe {
 	private EmiStack getBase(long i) {
 		ItemStack tool = baseItem.getDefaultStack().copy();
 		int units = getStackCount(i);
-		int damage = (int) Math.ceil((baseItem.getMaxDamage() * units) / (double) additionCount);
+		int damage = (int) Math.ceil((baseItem.getDefaultStack().getMaxDamage() * units) / (double) additionCount);
 		tool.setDamage(damage);
 		return EmiStack.of(tool);
 	}

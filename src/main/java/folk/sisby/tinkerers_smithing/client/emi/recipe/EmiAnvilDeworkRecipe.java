@@ -8,6 +8,7 @@ import dev.emi.emi.api.widget.WidgetHolder;
 import dev.emi.emi.recipe.EmiAnvilRecipe;
 import folk.sisby.tinkerers_smithing.client.emi.IterativeSlotWidget;
 import net.minecraft.client.gui.tooltip.OrderedTextTooltipComponent;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -28,9 +29,9 @@ public class EmiAnvilDeworkRecipe extends EmiAnvilRecipe implements EmiRecipe {
 	public void addWidgets(WidgetHolder widgets) {
 		widgets.addTexture(EmiTexture.PLUS, 27, 3);
 		widgets.addTexture(EmiTexture.EMPTY_ARROW, 75, 1);
-		widgets.add(new IterativeSlotWidget(i -> getTool(i, false), 0, 0).appendTooltip(ingredient -> new OrderedTextTooltipComponent(Text.literal("Repair Cost: " + ingredient.getEmiStacks().get(0).getItemStack().getRepairCost()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)).asOrderedText())));
+		widgets.add(new IterativeSlotWidget(i -> getTool(i, false), 0, 0).appendTooltip(ingredient -> new OrderedTextTooltipComponent(Text.literal("Repair Cost: " + ingredient.getEmiStacks().get(0).getItemStack().get(DataComponentTypes.REPAIR_COST)).setStyle(Style.EMPTY.withColor(Formatting.GRAY)).asOrderedText())));
 		widgets.add(new IterativeSlotWidget(this::getRepairStack, 49, 0));
-		widgets.add(new IterativeSlotWidget(i -> getTool(i, true), 107, 0).appendTooltip(ingredient -> new OrderedTextTooltipComponent(Text.literal("Repair Cost: " + ingredient.getEmiStacks().get(0).getItemStack().getRepairCost()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)).asOrderedText())).recipeContext(this));
+		widgets.add(new IterativeSlotWidget(i -> getTool(i, true), 107, 0).appendTooltip(ingredient -> new OrderedTextTooltipComponent(Text.literal("Repair Cost: " + ingredient.getEmiStacks().get(0).getItemStack().get(DataComponentTypes.REPAIR_COST)).setStyle(Style.EMPTY.withColor(Formatting.GRAY)).asOrderedText())).recipeContext(this));
 	}
 
 	private int getStackCount(long i) {
@@ -44,7 +45,7 @@ public class EmiAnvilDeworkRecipe extends EmiAnvilRecipe implements EmiRecipe {
 		if (work <= 0) {
 			return EmiStack.of(stack);
 		}
-		stack.setRepairCost(work);
+		stack.set(DataComponentTypes.REPAIR_COST, work);
 		return EmiStack.of(stack);
 	}
 

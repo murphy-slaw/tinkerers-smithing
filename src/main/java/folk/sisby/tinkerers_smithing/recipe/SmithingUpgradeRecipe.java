@@ -1,17 +1,22 @@
 package folk.sisby.tinkerers_smithing.recipe;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import folk.sisby.tinkerers_smithing.TinkerersSmithing;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SmithingTransformRecipe;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
+import net.minecraft.recipe.input.SmithingRecipeInput;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import static folk.sisby.tinkerers_smithing.TinkerersSmithingLoader.recipeId;
@@ -22,10 +27,14 @@ public class SmithingUpgradeRecipe extends SmithingTransformRecipe implements Se
 	public final Item resultItem;
 
 	public SmithingUpgradeRecipe(Item baseItem, Ingredient addition, int additionCount, Item resultItem) {
-		super(recipeId("smithing", resultItem, baseItem), Ingredient.empty(), Ingredient.ofItems(baseItem), addition, getPreviewResult(resultItem, additionCount));
+		super(Ingredient.empty(), Ingredient.ofItems(baseItem), addition, getPreviewResult(resultItem, additionCount));
 		this.baseItem = baseItem;
 		this.additionCount = additionCount;
 		this.resultItem = resultItem;
+	}
+
+	public RecipeEntry<SmithingUpgradeRecipe> toEntry() {
+		return new RecipeEntry<>(recipeId("smithing", resultItem, baseItem), this);
 	}
 
 	private static ItemStack getPreviewResult(Item resultItem, int additionCount) {
@@ -35,13 +44,13 @@ public class SmithingUpgradeRecipe extends SmithingTransformRecipe implements Se
 	}
 
 	public static int resultDamage(Item resultItem, int additionCount, int usedCount) {
-		return Math.min(resultItem.getMaxDamage() - 1, (int) Math.floor(resultItem.getMaxDamage() * ((additionCount - usedCount) / 4.0)));
+		return Math.min(resultItem.getDefaultStack().getMaxDamage() - 1, (int) Math.floor(resultItem.getDefaultStack().getMaxDamage() * ((additionCount - usedCount) / 4.0)));
 	}
 
 	@Override
-	public ItemStack craft(Inventory inventory, DynamicRegistryManager registryManager) {
-		ItemStack output = super.craft(inventory, registryManager);
-		int usedCount = Math.min(additionCount, inventory.getStack(2).getCount());
+	public ItemStack craft(SmithingRecipeInput recipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
+		ItemStack output = super.craft(recipeInput, wrapperLookup);
+		int usedCount = Math.min(additionCount, recipeInput.addition().getCount());
 		if (usedCount < additionCount - 4) return ItemStack.EMPTY;
 		output.setDamage(resultDamage(output.getItem(), additionCount, usedCount));
 		return output;
@@ -58,27 +67,29 @@ public class SmithingUpgradeRecipe extends SmithingTransformRecipe implements Se
 	}
 
 	public static class Serializer implements RecipeSerializer<SmithingUpgradeRecipe> {
-		public SmithingUpgradeRecipe read(Identifier id, JsonObject json) {
-			Item baseItem = JsonHelper.getItem(json, "base");
-			Ingredient addition = Ingredient.fromJson(JsonHelper.getObject(json, "addition"));
-			int additionCount = JsonHelper.getInt(json, "additionCount");
-			Item resultItem = JsonHelper.getItem(json, "result");
-			return new SmithingUpgradeRecipe(baseItem, addition, additionCount, resultItem);
+		MapCodec<SmithingUpgradeRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Registries.ITEM.getCodec().fieldOf("baseItem").forGetter(r -> r.baseItem),
+			Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("addition").forGetter(r -> r.addition),
+			Codec.INT.fieldOf("additionCount").forGetter(r -> r.additionCount),
+			Registries.ITEM.getCodec().fieldOf("resultItem").forGetter(r -> r.resultItem)
+		).apply(instance, SmithingUpgradeRecipe::new));
+
+		PacketCodec<RegistryByteBuf, SmithingUpgradeRecipe> PACKET_CODEC = PacketCodec.tuple(
+			PacketCodecs.registryValue(RegistryKeys.ITEM), r -> r.baseItem,
+			Ingredient.PACKET_CODEC, r -> r.addition,
+			PacketCodecs.VAR_INT, r -> r.additionCount,
+			PacketCodecs.registryValue(RegistryKeys.ITEM), r -> r.resultItem,
+			SmithingUpgradeRecipe::new
+		);
+
+		@Override
+		public MapCodec<SmithingUpgradeRecipe> codec() {
+			return CODEC;
 		}
 
-		public SmithingUpgradeRecipe read(Identifier id, PacketByteBuf buf) {
-			Item baseItem = Item.byRawId(buf.readVarInt());
-			Ingredient addition = Ingredient.fromPacket(buf);
-			int additionCount = buf.readVarInt();
-			Item resultItem = Item.byRawId(buf.readVarInt());
-			return new SmithingUpgradeRecipe(baseItem, addition, additionCount, resultItem);
-		}
-
-		public void write(PacketByteBuf buf, SmithingUpgradeRecipe recipe) {
-			buf.writeVarInt(Item.getRawId(recipe.baseItem));
-			recipe.addition.write(buf);
-			buf.writeVarInt(recipe.additionCount);
-			buf.writeVarInt(Item.getRawId(recipe.resultItem));
+		@Override
+		public PacketCodec<RegistryByteBuf, SmithingUpgradeRecipe> packetCodec() {
+			return PACKET_CODEC;
 		}
 	}
 }

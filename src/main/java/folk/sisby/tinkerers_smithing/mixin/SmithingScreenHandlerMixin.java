@@ -4,6 +4,7 @@ import folk.sisby.tinkerers_smithing.recipe.SmithingUpgradeRecipe;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.SmithingRecipe;
 import net.minecraft.screen.ForgingScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
@@ -21,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SmithingScreenHandlerMixin extends ForgingScreenHandler {
 	@Shadow
 	@Nullable
-	private SmithingRecipe currentRecipe;
+	private RecipeEntry<SmithingRecipe> currentRecipe;
 	@Unique
 	private int ingredientsUsed = 0;
 
@@ -29,10 +30,10 @@ public abstract class SmithingScreenHandlerMixin extends ForgingScreenHandler {
 		super(type, syncId, playerInventory, context);
 	}
 
-	@Inject(method = "updateResult", at = @At(value = "TAIL"))
+	@Inject(method = "updateResult", at = @At("TAIL"))
 	public void cacheIngredientsUsed(CallbackInfo ci) {
 		int additionCount = -1;
-		if (this.currentRecipe instanceof SmithingUpgradeRecipe sur) {
+		if (this.currentRecipe != null && this.currentRecipe.value() instanceof SmithingUpgradeRecipe sur) {
 			additionCount = sur.additionCount;
 		}
 		ingredientsUsed = additionCount == -1 ? 1 : Math.min(additionCount, this.getSlot(SmithingScreenHandler.MATERIAL_ID).getStack().getCount());

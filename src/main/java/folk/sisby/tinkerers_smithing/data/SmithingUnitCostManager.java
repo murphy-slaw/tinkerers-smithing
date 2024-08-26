@@ -2,6 +2,7 @@ package folk.sisby.tinkerers_smithing.data;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.mojang.serialization.JsonOps;
 import folk.sisby.tinkerers_smithing.TinkerersSmithing;
 import folk.sisby.tinkerers_smithing.TinkerersSmithingLoader;
 import net.minecraft.recipe.Ingredient;
@@ -16,7 +17,7 @@ import java.util.Map;
 
 public class SmithingUnitCostManager extends JsonDataLoader {
 	public static final SmithingUnitCostManager INSTANCE = new SmithingUnitCostManager(new Gson());
-	public static final Identifier ID = new Identifier(TinkerersSmithing.ID, "smithing_unit_cost_loader");
+	public static final Identifier ID = Identifier.of(TinkerersSmithing.ID, "smithing_unit_cost_loader");
 
 	public static final String KEY_REPLACE = "replace";
 	public static final String KEY_VALUES = "values";
@@ -34,7 +35,7 @@ public class SmithingUnitCostManager extends JsonDataLoader {
 			boolean replace = json.getAsJsonObject().get(KEY_REPLACE).getAsBoolean();
 			Map<Ingredient, Integer> costs = new HashMap<>();
 			json.getAsJsonObject().get(KEY_VALUES).getAsJsonArray().forEach(jsonValue -> {
-				Ingredient ingredient = Ingredient.fromJson(jsonValue.getAsJsonObject());
+				Ingredient ingredient = Ingredient.ALLOW_EMPTY_CODEC.decode(JsonOps.INSTANCE, jsonValue.getAsJsonObject()).getOrThrow().getFirst();
 				int cost = jsonValue.getAsJsonObject().get(KEY_VALUE_COST).getAsInt();
 				if (!ingredient.isEmpty()) {
 					costs.put(ingredient, cost);
