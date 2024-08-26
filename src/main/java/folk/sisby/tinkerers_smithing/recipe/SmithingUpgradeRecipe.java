@@ -42,8 +42,9 @@ public class SmithingUpgradeRecipe extends SmithingRecipe implements ServerRecip
 	public ItemStack craft(Inventory inventory) {
 		ItemStack output = super.craft(inventory);
 		int usedCount = Math.min(additionCount, inventory.getStack(1).getCount());
-		output.setDamage(resultDamage(output.getItem(), additionCount, usedCount));
-		if (output.getDamage() > output.getMaxDamage()) return ItemStack.EMPTY;
+		int damage = resultDamage(output.getItem(), additionCount, usedCount);
+		if (damage > output.getMaxDamage()) return ItemStack.EMPTY;
+		output.setDamage(damage);
 		return output;
 	}
 
