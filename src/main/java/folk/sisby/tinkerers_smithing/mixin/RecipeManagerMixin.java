@@ -28,7 +28,7 @@ public class RecipeManagerMixin {
 		return builder;
 	}
 
-	@ModifyReceiver(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableMultimap$Builder;build()Lcom/google/common/collect/ImmutableMultimap;"))
+	@ModifyReceiver(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableMultimap$Builder;build()Lcom/google/common/collect/ImmutableMultimap;", remap = false))
 	private ImmutableMultimap.Builder<RecipeType<?>, RecipeEntry<?>> AddRuntimeRecipes(ImmutableMultimap.Builder<RecipeType<?>, RecipeEntry<?>> recipes) {
 		Map<Identifier, Recipe<?>> dataRecipes = new HashMap<>();
 		for (RecipeEntry<?> entry : builder.build().values()) {

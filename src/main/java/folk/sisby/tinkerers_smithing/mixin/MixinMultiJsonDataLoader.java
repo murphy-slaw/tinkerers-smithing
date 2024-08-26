@@ -22,9 +22,7 @@ import java.util.Map;
 
 @Mixin(MultiJsonDataLoader.class)
 public class MixinMultiJsonDataLoader extends SinglePreparationResourceReloaderMixin {
-	@Shadow
-	@Final
-	private String dataType;
+	@Shadow(remap = false) @Final private String dataType;
 
 	@Override
 	@SuppressWarnings("unchecked")

@@ -324,7 +324,7 @@ public class TinkerersSmithingLoader {
 			LOGGER.info("[Tinkerer's Smithing] Applied {} Sacrifice Paths to {} items", INFO_ADDED_SACRIFICES, INFO_ADDED_SACRIFICE_ITEMS);
 			if (!WARN_DEFAULT_MATERIAL_ARMOR.isEmpty()) {
 				Set<RegistryEntry<ArmorMaterial>> armorMats = new HashSet<>(WARN_DEFAULT_MATERIAL_ARMOR.values());
-				LOGGER.warn("[Tinkerer's Smithing] Found {} unregistered armor materials with {} armor items: [{}] items: [{}]", armorMats.size(), WARN_DEFAULT_MATERIAL_ARMOR.size(), armorMats.stream().map(Object::toString).collect(Collectors.joining(", ")), WARN_DEFAULT_MATERIAL_ARMOR.entrySet().stream()
+				LOGGER.warn("[Tinkerer's Smithing] Found {} unregistered armor materials with {} armor items: [{}] - items: [{}]", armorMats.size(), WARN_DEFAULT_MATERIAL_ARMOR.size(), armorMats.stream().map(RegistryEntry::getIdAsString).collect(Collectors.joining(", ")), WARN_DEFAULT_MATERIAL_ARMOR.entrySet().stream()
 					.collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList()))).entrySet().stream() // Invert Map
 					.map(e -> "%s[%s]".formatted(e.getKey().getIdAsString(), e.getValue().stream().map(Identifier::toString).collect(Collectors.joining(", ")))).collect(Collectors.joining(", "))); // Stringify
 			}
