@@ -37,6 +37,7 @@ public class SacrificeUpgradeRecipe extends SmithingRecipe implements ServerReci
 	}
 
 	public static int resultDamage(Item resultItem, int additionUnits, int resultUnits, int additionDamage, int additionMaxDamage) {
+		if (resultItem.getMaxDamage() == 0) return additionUnits * (additionDamage / (double) additionMaxDamage) >= resultUnits ? 0 : 1;
 		return (int) Math.ceil(resultItem.getMaxDamage() - ((additionMaxDamage - additionDamage) * ((double) additionUnits * resultItem.getMaxDamage()) / ((double) additionMaxDamage * resultUnits)));
 	}
 
@@ -45,6 +46,7 @@ public class SacrificeUpgradeRecipe extends SmithingRecipe implements ServerReci
 		ItemStack output = super.craft(inventory);
 		ItemStack addition = inventory.getStack(1);
 		output.setDamage(resultDamage(output.getItem(), additionUnits, resultUnits, addition.getDamage(), addition.getMaxDamage()));
+		if (output.getDamage() > output.getMaxDamage()) return ItemStack.EMPTY;
 		return output;
 	}
 
