@@ -46,8 +46,9 @@ public class SacrificeUpgradeRecipe extends SmithingTransformRecipe implements S
 	public ItemStack craft(Inventory inventory, DynamicRegistryManager registryManager) {
 		ItemStack output = super.craft(inventory, registryManager);
 		ItemStack addition = inventory.getStack(2);
-		output.setDamage(resultDamage(output.getItem(), additionUnits, resultUnits, addition.getDamage(), addition.getMaxDamage()));
-		if (output.getDamage() > output.getMaxDamage()) return ItemStack.EMPTY;
+		int damage = resultDamage(output.getItem(), additionUnits, resultUnits, addition.getDamage(), addition.getMaxDamage());
+		if (damage > output.getMaxDamage()) return ItemStack.EMPTY;
+		output.setDamage(damage);
 		return output;
 	}
 
