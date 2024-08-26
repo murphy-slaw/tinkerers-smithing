@@ -52,8 +52,9 @@ public class SmithingUpgradeRecipe extends SmithingTransformRecipe implements Se
 	public ItemStack craft(SmithingRecipeInput recipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
 		ItemStack output = super.craft(recipeInput, wrapperLookup);
 		int usedCount = Math.min(additionCount, recipeInput.addition().getCount());
-		output.setDamage(resultDamage(output.getItem(), additionCount, usedCount));
-		if (output.getDamage() > output.getMaxDamage()) return ItemStack.EMPTY;
+		int damage = resultDamage(output.getItem(), additionCount, usedCount);
+		if (damage > output.getMaxDamage()) return ItemStack.EMPTY;
+		output.setDamage(damage);
 		return output;
 	}
 

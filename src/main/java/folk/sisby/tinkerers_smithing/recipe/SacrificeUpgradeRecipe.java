@@ -55,8 +55,9 @@ public class SacrificeUpgradeRecipe extends SmithingTransformRecipe implements S
 	public ItemStack craft(SmithingRecipeInput recipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
 		ItemStack output = super.craft(recipeInput, wrapperLookup);
 		ItemStack addition = recipeInput.addition();
-		output.setDamage(resultDamage(output.getItem(), additionUnits, resultUnits, addition.getDamage(), addition.getMaxDamage()));
-		if (output.getDamage() > output.getMaxDamage()) return ItemStack.EMPTY;
+		int damage = resultDamage(output.getItem(), additionUnits, resultUnits, addition.getDamage(), addition.getMaxDamage());
+		if (damage > output.getMaxDamage()) return ItemStack.EMPTY;
+		output.setDamage(damage);
 		return output;
 	}
 
