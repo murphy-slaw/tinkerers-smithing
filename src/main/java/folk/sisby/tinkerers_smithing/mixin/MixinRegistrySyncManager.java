@@ -1,27 +1,18 @@
 package folk.sisby.tinkerers_smithing.mixin;
 
-import folk.sisby.tinkerers_smithing.TinkerersSmithing;
+import com.llamalad7.mixinextras.sugar.Local;
+import folk.sisby.tinkerers_smithing.recipe.ServerRecipe;
 import net.fabricmc.fabric.impl.registry.sync.RegistrySyncManager;
-import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-
-import java.util.Objects;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(RegistrySyncManager.class)
 public abstract class MixinRegistrySyncManager {
-	@Redirect(method = "createAndPopulateRegistryMap", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getId(Ljava/lang/Object;)Lnet/minecraft/util/Identifier;"))
-	private static @Nullable <T> Identifier skipRecipes(Registry<T> instance, T t) {
-		final Identifier id = instance.getId(t);
-		if (
-			Objects.equals(id, Identifier.of(TinkerersSmithing.ID, "repair"))
-				|| Objects.equals(id, Identifier.of(TinkerersSmithing.ID, "sacrifice"))
-				|| Objects.equals(id, Identifier.of(TinkerersSmithing.ID, "smithing"))
-				|| Objects.equals(id, Identifier.of(TinkerersSmithing.ID, "shapeless"))
-		) {
+	@ModifyVariable(method = "createAndPopulateRegistryMap", at = @At("STORE"), ordinal = 1, remap = false)
+	private static Identifier skipRecipes(Identifier id, @Local(ordinal = 0) Object obj) {
+		if (ServerRecipe.class.isAssignableFrom(obj.getClass().getEnclosingClass())) {
 			return null;
 		}
 		return id;
