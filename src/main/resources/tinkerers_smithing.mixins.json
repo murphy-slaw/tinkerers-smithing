@@ -10,11 +10,12 @@
     "ItemStackMixin",
     "MixinComponentPredicate",
     "MixinMultiJsonDataLoader",
+  	"MixinRegistrySyncManager",
     "MixinServerCommonNetworkHandler",
+  	"MixinSheepEntity",
     "RecipeManagerMixin",
     "SimpleResourceReloadMixin",
-    "SmithingScreenHandlerMixin",
-	"MixinRegistrySyncManager"
+    "SmithingScreenHandlerMixin"
   ],
   "client": [
     "client.AnvilScreenMixin",
