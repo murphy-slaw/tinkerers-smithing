@@ -13,7 +13,8 @@
     "MixinServerCommonNetworkHandler",
     "RecipeManagerMixin",
     "SimpleResourceReloadMixin",
-    "SmithingScreenHandlerMixin"
+    "SmithingScreenHandlerMixin",
+	"MixinRegistrySyncManager"
   ],
   "client": [
     "client.AnvilScreenMixin",
