@@ -12,9 +12,17 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public abstract class MixinRegistrySyncManager {
 	@ModifyVariable(method = "createAndPopulateRegistryMap", at = @At("STORE"), ordinal = 1, remap = false)
 	private static Identifier skipRecipes(Identifier id, @Local(ordinal = 0) Object obj) {
-		if (ServerRecipe.class.isAssignableFrom(obj.getClass().getEnclosingClass())) {
+		if (obj == null)
+			return id;
+
+		Class<?> enclosing = obj.getClass().getEnclosingClass();
+		if (enclosing == null)
+			return id;
+
+		if (ServerRecipe.class.isAssignableFrom(enclosing)) {
 			return null;
 		}
+
 		return id;
 	}
 }
