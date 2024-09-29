@@ -9,23 +9,20 @@
     "IngredientMixin",
     "ItemStackMixin",
   	"MixinBeehiveBlock",
-  	"MixinBoggedEntity",
     "MixinComponentPredicate",
-  	"MixinMooshroomEntity",
     "MixinMultiJsonDataLoader",
 	"MixinPumpkinBlock",
   	"MixinRegistrySyncManager",
     "MixinServerCommonNetworkHandler",
-  	"MixinSheepEntity",
-  	"MixinSnowGolemEntity",
-  	"MixinWolfEntity",
+    "MixinServerPlayNetworkHandlerEntityInteract",
     "RecipeManagerMixin",
     "SimpleResourceReloadMixin",
     "SmithingScreenHandlerMixin"
   ],
   "client": [
     "client.AnvilScreenMixin",
-    "client.InGameHudMixin"
+    "client.InGameHudMixin",
+    "client.MixinPlayerEntity",
   ],
   "injectors": {
     "defaultRequire": 1
