@@ -20,7 +20,23 @@ public class MixinPlayerEntity {
 		),
 		cancellable = true
 	)
-	private void dontSwingBrokenTools(CallbackInfoReturnable<ActionResult> ci, @Local(ordinal = 1) ItemStack stack) {
+	private void dontSwingBrokenToolsEntity(CallbackInfoReturnable<ActionResult> ci, @Local(ordinal = 1) ItemStack stack) {
+		// this mixin is only responsible for making the client not swing their hand when trying to use a broken tool
+		// (without it, they will swing the tool on some mobs like bogged or snow golem)
+		if (TinkerersSmithing.isKeeper(stack) && TinkerersSmithing.isBroken(stack)) {
+			ci.setReturnValue(ActionResult.PASS);
+		}
+	}
+
+	@Inject(
+		method = "interact",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/entity/Entity;interact(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"
+		),
+		cancellable = true
+	)
+	private void dontSwingBrokenToolsBlock(CallbackInfoReturnable<ActionResult> ci, @Local(ordinal = 1) ItemStack stack) {
 		// this mixin is only responsible for making the client not swing their hand when trying to use a broken tool
 		// (without it, they will swing the tool on some mobs like bogged or snow golem)
 		if (TinkerersSmithing.isKeeper(stack) && TinkerersSmithing.isBroken(stack)) {

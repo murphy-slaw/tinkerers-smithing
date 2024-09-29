@@ -8,12 +8,11 @@
     "EnchantmentHelperMixin",
     "IngredientMixin",
     "ItemStackMixin",
-  	"MixinBeehiveBlock",
     "MixinComponentPredicate",
     "MixinMultiJsonDataLoader",
-	"MixinPumpkinBlock",
   	"MixinRegistrySyncManager",
     "MixinServerCommonNetworkHandler",
+    "MixinServerPlayNetworkHandler",
     "MixinServerPlayNetworkHandlerEntityInteract",
     "RecipeManagerMixin",
     "SimpleResourceReloadMixin",
@@ -22,7 +21,8 @@
   "client": [
     "client.AnvilScreenMixin",
     "client.InGameHudMixin",
-    "client.MixinPlayerEntity",
+    "client.MixinClientPlayerInteractionManager",
+    "client.MixinPlayerEntity"
   ],
   "injectors": {
     "defaultRequire": 1
