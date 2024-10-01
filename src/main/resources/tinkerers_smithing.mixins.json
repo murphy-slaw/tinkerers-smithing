@@ -10,14 +10,19 @@
     "ItemStackMixin",
     "MixinComponentPredicate",
     "MixinMultiJsonDataLoader",
+  	"MixinRegistrySyncManager",
     "MixinServerCommonNetworkHandler",
+    "MixinServerPlayNetworkHandler",
+    "MixinServerPlayNetworkHandlerEntityInteract",
     "RecipeManagerMixin",
     "SimpleResourceReloadMixin",
     "SmithingScreenHandlerMixin"
   ],
   "client": [
     "client.AnvilScreenMixin",
-    "client.InGameHudMixin"
+    "client.InGameHudMixin",
+    "client.MixinClientPlayerInteractionManager",
+    "client.MixinPlayerEntity"
   ],
   "injectors": {
     "defaultRequire": 1

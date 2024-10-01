@@ -82,7 +82,7 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 		}
 	}
 
-	@Inject(method = "updateResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isOf(Lnet/minecraft/item/Item;)Z", ordinal = 1), cancellable = true)
+	@Inject(method = "updateResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isOf(Lnet/minecraft/item/Item;)Z", ordinal = 0), cancellable = true)
 	private void applyDeworkMaterial(CallbackInfo ci) {
 		ItemStack base = this.getSlot(AnvilScreenHandler.INPUT_1_ID).getStack();
 		ItemStack ingredient = this.getSlot(AnvilScreenHandler.INPUT_2_ID).getStack();
@@ -93,7 +93,7 @@ public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
 				result.set(DataComponentTypes.REPAIR_COST, ((result.getOrDefault(DataComponentTypes.REPAIR_COST, 0) + 1) / 2) - 1);
 				this.repairItemUsage++;
 			} while (result.getOrDefault(DataComponentTypes.REPAIR_COST, 0) > 0 && this.repairItemUsage < ingredient.getCount());
-			this.getSlot(AnvilScreenHandler.OUTPUT_ID).setStack(result);
+			this.output.setStack(0, result);
 			this.levelCost.set(0);
 			this.sendContentUpdates();
 			ci.cancel();

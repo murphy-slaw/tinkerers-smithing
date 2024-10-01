@@ -107,7 +107,8 @@ public abstract class ItemStackMixin {
 
 	@ModifyArg(method = "damage(ILnet/minecraft/server/world/ServerWorld;Lnet/minecraft/server/network/ServerPlayerEntity;Ljava/util/function/Consumer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;setDamage(I)V"))
 	private int dontBreakResetKeepers(int damage) {
-		return isKeeper() ? ((ItemStack) (Object) this).getMaxDamage() : damage;
+//		return isKeeper() ? ((ItemStack) (Object) this).getMaxDamage() : damage;
+		return damage;
 	}
 
 	@Inject(method = "getTooltip", at = @At(value = "RETURN"), cancellable = true)
