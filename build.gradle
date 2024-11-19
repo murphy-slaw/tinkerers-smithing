@@ -13,6 +13,21 @@ archivesBaseName = project.slug
 repositories {
 	maven { url "https://repo.sleeping.town/" }
 	maven { url "https://maven.terraformersmc.com/" }
+	maven {
+		// Shedaniel's maven (Architectury API)
+		url = "https://maven.architectury.dev"
+		content {
+			includeGroup "dev.architectury"
+		}
+	}
+
+	maven {
+		// saps.dev Maven (KubeJS and Rhino)
+		url = "https://maven.saps.dev/minecraft"
+		content {
+			includeGroup "dev.latvian.mods"
+		}
+	}
 }
 
 dependencies {
@@ -27,6 +42,8 @@ dependencies {
 
 	modCompileOnly libs.emi
 	modLocalRuntime libs.emi
+
+	modImplementation("dev.latvian.mods:kubejs-fabric:${kubejs_version}")
 }
 
 processResources {

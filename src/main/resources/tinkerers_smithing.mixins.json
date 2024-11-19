@@ -3,6 +3,7 @@
 	"minVersion": "0.8",
 	"package": "folk.sisby.tinkerers_smithing.mixin",
 	"compatibilityLevel": "JAVA_17",
+	"plugin": "folk.sisby.tinkerers_smithing.mixin.TinkerersSmithingMixinPlugin",
 	"mixins": [
 		"AnvilScreenHandlerMixin",
 		"EnchantmentHelperMixin",
